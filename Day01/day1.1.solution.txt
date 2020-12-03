@@ -1,0 +1,22 @@
+drop table day1_problem1;
+create table day1_problem1 (a number);
+day1.1.input.insert.txt
+
+select count(*) from day1_problem1;
+select a.a, b.a, a.a+b.a, a.a*b.a
+from day1_problem1 a, day1_problem1 b
+where a.a+b.a = 2020;
+
+337	1683	2020	567171
+1683	337	2020	567171
+
+
+select a.a, b.a, c.a, a.a+b.a+c.a, a.a*b.a*c.a
+from day1_problem1 a, day1_problem1 b, day1_problem1 c
+where a.a+b.a+c.a = 2020;
+862	877	281	2020	212428694
+862	281	877	2020	212428694
+877	862	281	2020	212428694
+877	281	862	2020	212428694
+281	862	877	2020	212428694
+281	877	862	2020	212428694
