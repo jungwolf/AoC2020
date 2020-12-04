@@ -6,3 +6,19 @@ echo "LOAD DATA truncate into table day03_data (lineno recnum,xline terminated b
 sqlldr jungwolf/zulu7boy@aoc2 data=input.txt control=day03.ctl
 
 select * from day03_data order by lineno;
+
+
+--lag test
+create table lag_test (a number);
+insert into lag_test values (1);
+insert into lag_test values (2);
+insert into lag_test values (9);
+insert into lag_test values (15);
+commit;
+select * from lag_test;
+select a, lag(a,1) over (order by rownum) from lag_test;
+
+select a
+  , lag(a,1) over (order by rownum)
+  , a * nvl(lag(a,1) over (order by rownum),1)
+from lag_test;
