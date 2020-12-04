@@ -1,0 +1,8 @@
+
+drop table day03_data;
+create table day03_data (lineno number, xline varchar2(4000));
+
+echo "LOAD DATA truncate into table day03_data (lineno recnum,xline terminated by '^')" > day03.ctl
+sqlldr jungwolf/zulu7boy@aoc2 data=input.txt control=day03.ctl
+
+select * from day03_data order by lineno;
