@@ -99,3 +99,22 @@ order by right, down, lineno
 ;
 -- probably use modline in sum to discard the extra values
 
+-- still okay with the other values?
+select lineno  , mod(lineno,down) modline, trunc(lineno/down)+1 truedivdown
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+  , 1+((trunc(lineno/down)+1)-1)*right divposition
+  , 1+mod(((trunc(lineno/down)+1)-1)*right,length(xline)) divmodx
+from day03_example, day3_steps
+where 1=1 
+--  and down=2
+--  and mod(lineno,down) = 1
+order by right, down, lineno
+;
+-- shows problem with trunc, maybe +0.5 inside instead of +1 outside
+
+-- trunc(lineno/down+0.5) works; probably not for down other than 1 and 2
+select right, down, lineno from day03_example, day3_steps;
+select right, down, lineno, trunc(lineno/down), 1+trunc(lineno/down), trunc(lineno/down+0.5) from day03_example, day3_steps order by lineno, down, right;
+select right, down, lineno, trunc(lineno/down), 1+trunc(lineno/down) from day03_example, day3_steps order by lineno, down, right;
