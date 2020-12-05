@@ -1,3 +1,8 @@
+-- I originally didn't work through the example to validate my approach
+-- part 1 worked fine (solution1.txt)
+-- part 2 didn't, and I didn't have a good way to debug it (solution2.txt)
+-- I worked through the example including debug steps (solution_example.txt)
+-- now, I will work through part 2 using the example data (solution2_example.txt)
 
 drop table day03_data;
 create table day03_data (lineno number, xline varchar2(4000));
