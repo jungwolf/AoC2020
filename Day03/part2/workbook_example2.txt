@@ -1,0 +1,68 @@
+-- new workbook for down
+-- works for down = 1
+select xline||xline||xline||xline||xline trees, right, down
+  , 1+(lineno-1)*right position, substr(xline||xline||xline||xline||xline, 1+(lineno-1)*right ,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where down=1
+order by right, down, lineno
+;
+
+-- what happens when down = 2?
+select xline||xline||xline||xline||xline trees, right, down
+  , 1+(lineno-1)*right position, substr(xline||xline||xline||xline||xline, 1+(lineno-1)*right ,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where down=2
+order by right, down, lineno
+;
+/*
+..##.........##.........##.........##.........##.......	1	2	1	.	..##.......	1	11	1	.
+#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..	1	2	2	.	#...#...#..	2	11	2	.
+.#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.	1	2	3	.	.#....#..#.	3	11	3	.
+..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#	1	2	4	.	..#.#...#.#	4	11	4	.
+.#...##..#..#...##..#..#...##..#..#...##..#..#...##..#.	1	2	5	.	.#...##..#.	5	11	5	.
+..#.##.......#.##.......#.##.......#.##.......#.##.....	1	2	6	#	..#.##.....	6	11	6	#
+.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#	1	2	7	.	.#.#.#....#	7	11	7	.
+.#........#.#........#.#........#.#........#.#........#	1	2	8	.	.#........#	8	11	8	.
+#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...	1	2	9	.	#.##...#...	9	11	9	.
+#...##....##...##....##...##....##...##....##...##....#	1	2	10	.	#...##....#	10	11	10	.
+.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#	1	2	11	#	.#..#...#.#	11	11	11	#
+*/
+
+-- focus on just position
+select right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where down=2
+order by right, down, lineno
+;
+-- obviously doesn't skip lines
+-- how about rework input so it skips over lines?
+select lineno  , mod(lineno,down) modline
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where down=2
+order by right, down, lineno
+;
+select lineno  , mod(lineno,down) modline
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where down=2
+  and mod(lineno,down) = 1
+order by right, down, lineno
+;
+-- just hides the lines, lineno is still jumps by 2
+
+
