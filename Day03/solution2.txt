@@ -172,8 +172,11 @@ group by right, down
 ;
 
  
-
-
+-- lag test
+select a
+  , lag(a,1) over (order by rownum)
+  , a * nvl(lag(a,1) over (order by rownum),1)
+from lag_test;
 
 
 
