@@ -42,3 +42,10 @@ insert into day03_example values (10,'#...##....#');
 insert into day03_example values (11,'.#..#...#.#');
 commit;
 select * from day03_example;
+
+-- show current position based on lineno
+select (lineno)*3 from day03_example order by lineno;
+-- whoops, origin is 1, need to offset
+select (lineno)*3-2 position from day03_example order by lineno;
+-- show trees and position
+select xline trees, (lineno)*3-2 position from day03_example order by lineno;
