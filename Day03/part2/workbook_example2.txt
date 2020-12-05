@@ -65,4 +65,37 @@ order by right, down, lineno
 ;
 -- just hides the lines, lineno is still jumps by 2
 
+-- maybe do something with mod in the position stuff, too, and then discard mod 0 lines 
+select lineno  , mod(lineno,down) modline, lineno/down linedivdown
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where down=2
+  and mod(lineno,down) = 1
+order by right, down, lineno
+;
+
+select lineno  , mod(lineno,down) modline, lineno/down linedivdown, trunc(lineno/down)+1 truedivdown
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where down=2
+  and mod(lineno,down) = 1
+order by right, down, lineno
+;
+-- okay, truedivdown looks good
+select lineno  , mod(lineno,down) modline, trunc(lineno/down)+1 truedivdown
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod((lineno-1)*right,length(xline)) modx
+  , 1+((trunc(lineno/down)+1)-1)*right divposition
+  , 1+mod(((trunc(lineno/down)+1)-1)*right,length(xline)) divmodx
+from day03_example, day3_steps
+where down=2
+--  and mod(lineno,down) = 1
+order by right, down, lineno
+;
+-- probably use modline in sum to discard the extra values
 
