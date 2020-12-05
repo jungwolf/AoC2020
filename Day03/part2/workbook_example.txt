@@ -154,3 +154,38 @@ order by lineno
 .#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#	5	51	.	.#..#...#.#	51	11	7	.
 */
 -- atpos and modatpos match now
+
+
+-- test all except down
+select xline||xline||xline||xline||xline trees, right, down
+  , 1+(lineno-1)*right position, substr(xline||xline||xline||xline||xline, 1+(lineno-1)*right ,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where down=1
+order by right, down, lineno
+;
+
+select right, sum(decode(modatpos,'#',1,0)) hits
+from (
+select xline||xline||xline||xline||xline trees, right, down
+  , 1+(lineno-1)*right position, substr(xline||xline||xline||xline||xline, 1+(lineno-1)*right ,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where down=1
+order by right, down, lineno
+)
+group by right
+order by right;
+/*
+1	2
+3	7
+5	3
+7	4
+*/
+-- matches
