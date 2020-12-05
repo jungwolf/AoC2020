@@ -36,3 +36,9 @@ from (
 )
 ;
 
+-- or, solution after working example
+select sum(decode(modatpos,'#',1,0)) hits
+from (
+  select substr(xline, 1+mod((lineno-1)*3,length(xline)), 1) modatpos
+  from day03_data order by lineno
+);
