@@ -22,3 +22,17 @@ select a
   , lag(a,1) over (order by rownum)
   , a * nvl(lag(a,1) over (order by rownum),1)
 from lag_test;
+-- doesn't work
+
+-- use sum by using logs
+select
+    sum(a)
+  , sum(ln(a))
+  , sum(exp(ln(a)))
+  , exp(sum(ln(a)))
+from lag_test;
+-- works
+-- note, casting to binary_double is much faster if using a large dataset
+SELECT exp(sum(ln(cast(a as binary_double)))) FROM lag_test;
+
+
