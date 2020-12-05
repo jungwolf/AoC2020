@@ -47,3 +47,34 @@ group by right, down
 --7;3;4;1;2	168.000000000000000000000000000000000003	168
 -- should have been 336
 
+-- get first parameters
+select 3 right, 1 down from dual;
+with steps as (
+  select 3 right, 1 down from dual
+)
+select right, down from steps;
+
+-- check we can get all of the parameters
+with steps as (
+  select 1 right, 1 down from dual
+  union all select 3, 1 from dual
+  union all select 5, 1 from dual
+  union all select 7, 1 from dual
+  union all select 1, 2 from dual
+)
+select right, down from steps
+/
+
+-- part 2 gives us a second dataset! creating new table
+-- just inserts, the problem didn't give this data as a file
+create table day3_steps (right number, down number);
+insert into day3_steps values (1,1);
+insert into day3_steps values (3,1);
+insert into day3_steps values (5,1);
+insert into day3_steps values (7,1);
+insert into day3_steps values (1,2);
+select * from day3_steps;
+commit;
+-- for now, just test with original parameters
+select * from day3_steps where right=3 and down=1;
+select right, down from day3_steps where right=3 and down=1;
