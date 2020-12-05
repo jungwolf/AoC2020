@@ -49,3 +49,36 @@ select (lineno)*3 from day03_example order by lineno;
 select (lineno)*3-2 position from day03_example order by lineno;
 -- show trees and position
 select xline trees, (lineno)*3-2 position from day03_example order by lineno;
+
+-- use mod to "extend" the tree field
+-- wait, what to mod by? add length of tree field
+select xline trees, (lineno)*3-2 x, length(xline) from day03_example order by lineno;
+select xline trees, (lineno)*3-2 x, length(xline) sz, mod((lineno)*3-2,length(xline)) modx from day03_example order by lineno;
+
+-- before going too far with that, verify we can hit the trees in the simple case
+-- what is at the position?
+select xline trees, (lineno)*3-2 position, substr(xline,(lineno)*3-2,1) atposition  from day03_example order by lineno;
+..##.......	1	.
+#...#...#..	4	.
+.#....#..#.	7	#
+..#.#...#.#	10	.
+.#...##..#.	13	
+..#.##.....	16	
+.#.#.#....#	19	
+.#........#	22	
+#.##...#...	25	
+#...##....#	28	
+.#..#...#.#	31	
+-- huh, need to check:
+/*
+..##.......
+#...#...#..
+.#....#..#.
+..#.#...#.#
+12345678901
+=..##....... .
+#..=.#...#.. .
+.#....=#..#. #
+..#.#...#=.# .
+*/
+-- looks good
