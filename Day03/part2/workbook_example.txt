@@ -78,3 +78,79 @@ commit;
 -- for now, just test with original parameters
 select * from day3_steps where right=3 and down=1;
 select right, down from day3_steps where right=3 and down=1;
+
+-- from part1, but add steps, not dealing with down for now
+-- sub 3 -> right
+select xline||xline||xline trees, right, 1+(lineno-1)*right position, substr(xline||xline||xline,(lineno)*right-2,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where right=3 and down=1
+order by lineno;
+/*
+..##.........##.........##.......	3	1	.	..##.......	1	11	1	.
+#...#...#..#...#...#..#...#...#..	3	4	.	#...#...#..	4	11	4	.
+.#....#..#..#....#..#..#....#..#.	3	7	#	.#....#..#.	7	11	7	#
+..#.#...#.#..#.#...#.#..#.#...#.#	3	10	.	..#.#...#.#	10	11	10	.
+.#...##..#..#...##..#..#...##..#.	3	13	#	.#...##..#.	13	11	2	#
+..#.##.......#.##.......#.##.....	3	16	#	..#.##.....	16	11	5	#
+.#.#.#....#.#.#.#....#.#.#.#....#	3	19	.	.#.#.#....#	19	11	8	.
+.#........#.#........#.#........#	3	22	#	.#........#	22	11	11	#
+#.##...#...#.##...#...#.##...#...	3	25	#	#.##...#...	25	11	3	#
+#...##....##...##....##...##....#	3	28	#	#...##....#	28	11	6	#
+.#..#...#.#.#..#...#.#.#..#...#.#	3	31	#	.#..#...#.#	31	11	9	#
+*/
+-- looks good so far
+select sum(decode(modatpos,'#',1,0)) hits
+from (
+select xline||xline||xline trees, right, 1+(lineno-1)*right position, substr(xline||xline||xline,(lineno)*right-2,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where right=3 and down=1
+order by lineno
+)
+;
+-- 7
+-- sum works too
+
+-- test right 5
+select xline||xline||xline trees, right, 1+(lineno-1)*right position, substr(xline||xline||xline,(lineno)*right-2,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where right=5 and down=1
+order by lineno
+;
+-- atpos and modatpos don't match
+-- atpos not right, pesky offset again
+select xline||xline||xline||xline||xline trees, right
+  , 1+(lineno-1)*right position, substr(xline||xline||xline||xline||xline, 1+(lineno-1)*right ,1) atpos
+  , xline trees, 1+(lineno-1)*right x, length(xline) sz, 1+mod((lineno-1)*right,length(xline)) modx
+  , substr(xline
+         , 1+mod((lineno-1)*right,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where right=5 and down=1
+order by lineno
+;
+/*
+..##.........##.........##.........##.........##.......	5	1	.	..##.......	1	11	1	.
+#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..	5	6	.	#...#...#..	6	11	6	.
+.#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.	5	11	.	.#....#..#.	11	11	11	.
+..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#	5	16	#	..#.#...#.#	16	11	5	#
+.#...##..#..#...##..#..#...##..#..#...##..#..#...##..#.	5	21	#	.#...##..#.	21	11	10	#
+..#.##.......#.##.......#.##.......#.##.......#.##.....	5	26	.	..#.##.....	26	11	4	.
+.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#	5	31	.	.#.#.#....#	31	11	9	.
+.#........#.#........#.#........#.#........#.#........#	5	36	.	.#........#	36	11	3	.
+#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...	5	41	#	#.##...#...	41	11	8	#
+#...##....##...##....##...##....##...##....##...##....#	5	46	.	#...##....#	46	11	2	.
+.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#	5	51	.	.#..#...#.#	51	11	7	.
+*/
+-- atpos and modatpos match now
