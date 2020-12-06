@@ -39,3 +39,20 @@ exec day04_example_create_passports;
 commit;
 select * from day04_example_passports;
 
+-- the problem gives more configuration data so make a table for them
+create table day04_password_elements (
+  element varchar2(3)
+  , description varchar2(50)
+  , optional varchar2(1)
+);
+insert into day04_password_elements values ('byr', 'Birth Year','N');
+insert into day04_password_elements values ('iyr', 'Issue Year','N');
+insert into day04_password_elements values ('eyr', 'Expiration Year','N');
+insert into day04_password_elements values ('hgt', 'Height','N');
+insert into day04_password_elements values ('hcl', 'Hair Color','N');
+insert into day04_password_elements values ('ecl', 'Eye Color','N');
+insert into day04_password_elements values ('pid', 'Passport ID','N');
+insert into day04_password_elements values ('cid', 'Country ID','Y');
+commit;
+select * from day04_password_elements;
+
