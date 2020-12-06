@@ -1,2 +1,32 @@
 -- using sqlldr is frustrating and fragile
 -- let's try using external tables instead
+create or replace directory refactor_dir as 'C:\Apps\cygwin64\home\jungwolf\AoC2020\refactor_area';
+
+-- first part, is just the normal create table syntax
+CREATE TABLE input_ext (
+  lineno      number
+  , xline      VARCHAR2(4000)
+)
+ORGANIZATION EXTERNAL (
+  TYPE ORACLE_LOADER
+  DEFAULT DIRECTORY refactor_dir
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY NEWLINE
+    FIELDS TERMINATED BY '^'
+    MISSING FIELD VALUES ARE NULL
+    (
+      xline      CHAR(4000)
+      , lineno 
+    )
+  )
+  LOCATION ('input.txt')
+)
+REJECT LIMIT UNLIMITED;
+select * from input_ext;
+
+-- how silly! directories are on the database host!
+-- luckily I still have a shared directory between my host and the RAC VMs
+--D:\VM\Oracle\RAC19\vagrant\rac\ol8_19\shared_scripts
+-- copy files to there
+create or replace directory refactor_dir as '/vagrant_scripts/input';
+select * from input_ext;
