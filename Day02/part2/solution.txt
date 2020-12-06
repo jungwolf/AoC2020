@@ -1,4 +1,4 @@
--- taking from what worked on example data
+-- repeat from part 1
 create or replace view day02_parsed_data as
 select xline, a, b, c, d
   , substr(xline,1,a-1) low
@@ -14,14 +14,14 @@ select xline
 from day02_data
 );
 
-create or replace view day02_valid as
-select xline
-  , case when regexp_count(pw,what)-low < 0 then 'NO'
-      when high - regexp_count(pw,what) < 0 then 'NO'
-      else 'YES'
-    end valid
+create or replace view day02_policy2 as
+select pw, what
+  , substr(pw,low,1) char1
+  , substr(pw,high,1) char1
+  , substr(pw,low,1) || substr(pw,high,1) both
+  , regexp_count(substr(pw,low,1) || substr(pw,high,1),what) the_count
 from day02_parsed_data;
+select * from day02_policy2;
 
-select valid, count(*)
-from day02_valid
-group by valid;
+select count(*) valid_pw from day02_policy2 where the_count=1;
+--530
