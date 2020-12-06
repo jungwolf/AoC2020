@@ -1,26 +1,41 @@
 -- create table/insert data
-drop table day03_example;
-create table day03_example (lineno number, xline varchar2(4000));
-insert into day03_example values(1,'1-3 a: abcde');
-insert into day03_example values(2,'1-3 b: cdefg');
-insert into day03_example values(3,'2-9 c: ccccccccc');
-select * from day02_test;
+drop table day04_example;
+create table day04_example (lineno number, xline varchar2(4000));
+insert into day04_example values(1,'ecl:gry pid:860033327 eyr:2020 hcl:#fffffd');
+insert into day04_example values(2,'byr:1937 iyr:2017 cid:147 hgt:183cm');
+insert into day04_example values(3,'');
+insert into day04_example values(4,'iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884');
+insert into day04_example values(5,'hcl:#cfa07d byr:1929');
+insert into day04_example values(6,'');
+insert into day04_example values(7,'hcl:#ae17e1 iyr:2013');
+insert into day04_example values(8,'eyr:2024');
+insert into day04_example values(9,'ecl:brn pid:760753108 byr:1931');
+insert into day04_example values(10,'hgt:179cm');
+insert into day04_example values(11,'');
+insert into day04_example values(12,'hcl:#cfa07d eyr:2025 pid:166559648');
+insert into day04_example values(13,'iyr:2011 ecl:brn hgt:59in');
 commit;
-
-
-insert into day03_example values(1,'ecl:gry pid:860033327 eyr:2020 hcl:#fffffd');
-insert into day03_example values(1,'byr:1937 iyr:2017 cid:147 hgt:183cm');
-insert into day03_example values(1,'');
-insert into day03_example values(1,'iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884');
-insert into day03_example values(1,'hcl:#cfa07d byr:1929');
-insert into day03_example values(1,'');
-insert into day03_example values(1,'hcl:#ae17e1 iyr:2013');
-insert into day03_example values(1,'eyr:2024');
-insert into day03_example values(1,'ecl:brn pid:760753108 byr:1931');
-insert into day03_example values(1,'hgt:179cm');
-insert into day03_example values(1,'');
-insert into day03_example values(1,'hcl:#cfa07d eyr:2025 pid:166559648');
-insert into day03_example values(1,'iyr:2011 ecl:brn hgt:59in');
-
 -- hmm, this might be easier by having sqlldr handle the multiple lines...
+-- sqlldr is such a pain...
+
+
+create table day04_example_passports (full_passport varchar2(4000));
+
+create or replace procedure day04_example_create_passports as
+  l_full_line varchar2(4000);
+begin
+  for i in (select xline from day04_example order by lineno) loop
+    if i.xline is null then
+      insert into day04_example_passports values (l_full_line);
+      l_full_line:= null;
+    else
+      l_full_line:=l_full_line||' '||i.xline;
+    end if;
+  end loop;
+end;
+/
+
+exec day04_example_create_passports;
+commit;
+select * from day04_example_passports;
 
