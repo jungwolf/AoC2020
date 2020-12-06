@@ -1,0 +1,2 @@
+First thing, copy the data to the external file directory.
+cp input.txt /cygdrive/d/VM/Oracle/RAC19/vagrant/rac/ol8_19/shared_scripts/input/Day04_input.txt
