@@ -55,3 +55,27 @@ from day02_test
 );
 
 
+-- hide that behind a view
+create or replace view day02_parsed_lines as
+select xline, a, b, c, d
+  , substr(xline,1,a-1) low
+  , substr(xline,a+1,b-a-1) high
+  , substr(xline,b+1,c-b-1) what
+  , substr(xline,d+1) pw
+from (
+select xline
+  , instr(xline,'-') a
+  , instr(xline,' ') b
+  , instr(xline,':') c
+  , instr(xline,' ',1,2) d
+from day02_test
+);
+
+select * from day02_parsed_lines;
+-- is regex cheating? I'm going to use it anyway
+select low, high, what, pw, regexp_count(pw,what) num from day02_parsed_lines;
+/*
+1	3	a	abcde	1
+1	3	b	cdefg	0
+2	9	c	ccccccccc	9
+*/
