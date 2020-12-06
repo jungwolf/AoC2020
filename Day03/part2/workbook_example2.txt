@@ -187,3 +187,36 @@ order by right, down, lineno
 )
 group by right, down
 order by down, right;
+
+
+
+select listagg(hits,';') within group (order by rownum)
+  , exp(sum(ln(hits)))
+  , round(exp(sum(ln(hits))))
+from (
+select right, down, sum(decode(modatpos,'#',1,0)) hits
+from (
+select xline||xline||xline||xline||xline trees, right, down
+  , mod(lineno+1,down) skip
+  , 1+(( ceil(lineno/down) )-1)*right x
+  , substr(xline||xline||xline||xline||xline, 1+(( ceil(lineno/down) )-1)*right ,1) atpos
+  , xline trees
+  , 1+(( ceil(lineno/down) )-1)*right x
+  , length(xline) sz
+  , 1+mod( (( ceil(lineno/down) )-1)*right ,length(xline)) modx
+  , substr(xline
+         , 1+mod( (( ceil(lineno/down) )-1)*right ,length(xline))
+         , 1) modatpos
+from day03_example, day3_steps
+where 1=1
+--  and down=2
+  and mod(lineno+1,down) = 0
+order by right, down, lineno
+)
+group by right, down
+order by down, right
+);
+--2;7;3;4;2	336.000000000000000000000000000000000002	336
+--In the above example, these slopes would find 2, 7, 3, 4, and 2 tree(s) respectively; multiplied together, these produce the answer 336.
+-- done!
+
