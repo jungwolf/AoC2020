@@ -1,0 +1,2 @@
+-- using sqlldr is frustrating and fragile
+-- let's try using external tables instead
