@@ -118,3 +118,31 @@ order by right, down, lineno
 select right, down, lineno from day03_example, day3_steps;
 select right, down, lineno, trunc(lineno/down), 1+trunc(lineno/down), trunc(lineno/down+0.5) from day03_example, day3_steps order by lineno, down, right;
 select right, down, lineno, trunc(lineno/down), 1+trunc(lineno/down) from day03_example, day3_steps order by lineno, down, right;
+
+-- working with ceil
+-- looks good
+select lineno  
+  , mod(lineno+1,down) skip
+  , ceil(lineno/down) newlineno
+  , right, down
+  , 1+(lineno-1)*right position
+  , 1+mod( (lineno-1)*right, length(xline) ) modx
+  , 1+(( ceil(lineno/down) )-1)*right divposition
+  , 1+mod((( ceil(lineno/down) )-1)*right,length(xline)) divmodx
+from day03_example, day3_steps
+where 1=1 
+--  and down=2
+order by right, down, lineno
+;
+-- cleanup
+select 
+  ceil(lineno/down) newlineno
+  , mod(lineno+1,down) skip
+  , right, down
+  , 1+(( ceil(lineno/down) )-1)*right x
+  , 1+mod((( ceil(lineno/down) )-1)*right,length(xline)) modx
+from day03_example, day3_steps
+where 1=1 
+--  and down=2
+order by right, down, lineno
+;
