@@ -1,0 +1,22 @@
+-- taking from what worked on example data
+create or replace view day02_parsed_test as
+select xline, a, b, c, d
+  , substr(xline,1,a-1) low
+  , substr(xline,a+1,b-a-1) high
+  , substr(xline,b+1,c-b-1) what
+  , substr(xline,d+1) pw
+from (
+select xline
+  , instr(xline,'-') a
+  , instr(xline,' ') b
+  , instr(xline,':') c
+  , instr(xline,' ',1,2) d
+from day02_test
+);
+
+select xline
+  , case when regexp_count(pw,what)-low < 0 then 'NO'
+      when high - regexp_count(pw,what) < 0 then 'NO'
+      else 'YES'
+    end valid
+from day02_parsed_data;
