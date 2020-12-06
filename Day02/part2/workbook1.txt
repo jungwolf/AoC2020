@@ -1,0 +1,39 @@
+-- I think this is easy enough I don't have to go though the example
+
+select * from day02_parsed_data;
+-- I can still used the view
+select pw, what
+  , substr(pw,a,1) char1
+  , substr(pw,b,1) char1
+from day02_parsed_data;
+
+select pw, what
+  , substr(pw,a,1) char1
+  , substr(pw,b,1) char1
+  , substr(pw,a,1) || substr(pw,b,1) both
+from day02_parsed_data;
+
+select pw, what
+  , substr(pw,a,1) char1
+  , substr(pw,b,1) char1
+  , substr(pw,a,1) || substr(pw,b,1) both
+  , regexp_count(substr(pw,a,1) || substr(pw,b,1),what) the_count
+from day02_parsed_data;
+
+-- save that as a view
+create or replace view day02_policy2 as
+select pw, what
+  , substr(pw,a,1) char1
+  , substr(pw,b,1) char2
+  , substr(pw,a,1) || substr(pw,b,1) both
+  , regexp_count(substr(pw,a,1) || substr(pw,b,1),what) the_count
+from day02_parsed_data;
+select * from day02_policy2;
+
+-- simple count at this point
+select the_count, count(*) from day02_policy2 group by the_count;
+select count(*) valid_pw from day02_policy2 where the_count=1;
+-- 383
+-- but wait, that is too low!
+
+

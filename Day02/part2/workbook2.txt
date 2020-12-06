@@ -1,0 +1,32 @@
+-- okay, go back to example
+select * from day02_parsed_lines;
+
+select pw, what
+  , substr(pw,a,1) char1
+  , substr(pw,b,1) char1
+  , substr(pw,a,1) || substr(pw,b,1) both
+  , regexp_count(substr(pw,a,1) || substr(pw,b,1),what) the_count
+  , l.*
+from day02_parsed_lines l;
+
+-- I'm using the wrong numbers
+select pw, what
+  , substr(pw,low,1) char1
+  , substr(pw,high,1) char1
+  , substr(pw,low,1) || substr(pw,high,1) both
+  , regexp_count(substr(pw,low,1) || substr(pw,high,1),what) the_count
+  , l.*
+from day02_parsed_lines l;
+
+
+create or replace view day02_policy2 as
+select pw, what
+  , substr(pw,low,1) char1
+  , substr(pw,high,1) char1
+  , substr(pw,low,1) || substr(pw,high,1) both
+  , regexp_count(substr(pw,low,1) || substr(pw,high,1),what) the_count
+from day02_parsed_data;
+select * from day02_policy2;
+
+select count(*) valid_pw from day02_policy2 where the_count=1;
+--530
