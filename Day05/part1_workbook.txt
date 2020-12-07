@@ -1,0 +1,44 @@
+-- example solution
+select 
+  binary_string_to_number(bin_row) the_row
+  , binary_string_to_number(bin_column) the_column
+  , binary_string_to_number(bin) seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select 'FBFBBFFRLR' seat from dual
+      union all select 'BFFFBBFRRR' seat from dual
+      union all select 'FFFBBBFRRR' seat from dual
+      union all select 'BBFFBBFRLL' seat from dual
+    )
+  )
+)
+;
+
+-- change row source from dual to day05_input
+select 
+  binary_string_to_number(bin_row) the_row
+  , binary_string_to_number(bin_column) the_column
+  , binary_string_to_number(bin) seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select xline seat from day05_input
+    )
+  )
+)
+;
+
+--As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?
+-- max, and remove the other columns from the aggregate statement
+select 
+  max(binary_string_to_number(bin)) max_seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select xline seat from day05_input
+    )
+  )
+)
+;
+-- 822
