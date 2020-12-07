@@ -1,3 +1,4 @@
+select * from day04_example;
 /*
 use a quick procedure to put the passports into one line instead of multiline
 */
@@ -10,7 +11,7 @@ create or replace procedure day04_example_create_passport_lines as
 begin
   for i in (select xline from day04_example order by lineno) loop
     if i.xline is null then
-      insert into day04_example_passports values (l_full_line);
+      insert into day04_example_passport_lines values (l_full_line);
       l_full_line:= null;
     else
       l_full_line:=l_full_line||' '||i.xline;
@@ -19,6 +20,6 @@ begin
 end;
 /
 
-exec day04_example_create_passports;
+exec day04_example_create_passport_lines;
 commit;
-select * from day04_example_passports;
+select * from day04_example_passport_lines;
