@@ -1,0 +1,37 @@
+/*
+  table day03_data is the input file loaded into a table
+    added line number since tables are usually treated as sets instead of ordered input
+  table day03_steps holds the right, down values for the different scenarios
+  the outer select uses log/exp to get around the fact oracle doesn't have an aggregate multiplication function
+    that is, using logs allows me to use the sum() aggregate function instead
+  the middle select adds up all the trees hit by a (right,down) parameter
+    modatpos -> what is at the right position, after modded for the length of the tree string
+    decode -> hits are counted as 1, anything else is 0
+    sum -> sum up the tree hits!
+  the inner select is the magic; oracle starts counting from 1 which caused all sorts of headaches
+    right, down -> parameters for a scenario
+    mod(lineno+1,down) -> used to skip lines if down > 1; lineno+1 takes care of the off-by-one issue
+    ceil(lineno/down)-1 -> used to move "right" spaces once per "down" lines; ceil and -1 handles off-by-one...
+    1+mod( ( ... )*right -> shows how far right we are; 1+ and ceil-1 used to handle the off-by-one issue again
+    mod(...,length(xline)) -> puts us back on the board if we've gone off the edge
+    substr -> is this a # or .?
+*/
+
+select listagg(hits,';') within group (order by rownum)
+  , exp(sum(ln(hits)))
+  , round(exp(sum(ln(hits))))
+from (
+  select right, down, sum(decode(modatpos,'#',1,0)) hits
+  from (
+    select right, down
+      , mod(lineno+1,down) skip
+      , substr(xline
+             , 1+mod( ( ceil(lineno/down)-1 )*right ,length(xline))
+             , 1) modatpos
+    from day03_data, day3_steps
+    where mod(lineno+1,down) = 0
+    order by right, down, lineno
+  )
+group by right, down
+order by down, right
+);
