@@ -1,0 +1,31 @@
+-- can we use a sequence to group passports
+select * from day04_example;
+create sequence day04_passport_group;
+
+select lineno, xline
+,lag(xline,1) over (order by lineno) prev
+from day04_example;
+
+select lineno, xline, prev 
+, nvl2(prev,1,2) test_null
+--, nvl2(prev,day04_passport_group.currval,2) test_null2
+--, nvl2(prev,day04_passport_group.currval,day04_passport_group.nextval) test_null2
+--, case when prev is null then day04_passport_group.nextval else day04_passport_group.currval end test_case
+--, nvl(xline,day04_passport_group.nextval) test_nvl
+, nvl2(prev,day04_passport_group.currval,day04_passport_group.nextval) test_null2
+from (
+select lineno, xline
+,lag(xline,1) over (order by lineno) prev
+from day04_example
+);
+
+select lineno, xline
+,nvl2(
+  lag(xline,1) over (order by lineno)
+  ,lag(lineno,1) over (order by lineno)
+  ,lineno
+  ) grouping
+,lag(xline,1) over (order by lineno) prev
+from day04_example
+
+-- probably something there but I'm not going to pursue it
