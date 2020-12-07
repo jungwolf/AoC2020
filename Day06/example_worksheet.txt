@@ -1,0 +1,73 @@
+-- first, the simple example input
+select 1,'abcx' from dual
+union all select 2,'abcy' from dual
+union all select 3,'abcz' from dual;
+
+--make it a table
+create table day06_example1 (lineno number, xline varchar2(4000));
+insert into day06_example1
+select 1,'abcx' from dual
+union all select 2,'abcy' from dual
+union all select 3,'abcz' from dual;
+select * from day06_example1;
+commit;
+
+-- do the same for the extended example data
+create table day06_example2 (lineno number, xline varchar2(4000));
+insert into day06_example2
+select 1,'abc' from dual
+union all select 2,'' from dual
+union all select 3,'a' from dual
+union all select 4,'b' from dual
+union all select 5,'c' from dual
+union all select 6,'' from dual
+union all select 7,'ab' from dual
+union all select 8,'ac' from dual
+union all select 9,'' from dual
+union all select 10,'a' from dual
+union all select 11,'a' from dual
+union all select 12,'a' from dual
+union all select 13,'a' from dual
+union all select 14,'' from dual
+union all select 15,'b' from dual;
+select * from day06_example2;
+commit;
+
+-- but at first just work on the one value
+select 1,'abcx' from dual;
+
+-- well, not quite, I'm going to combine each group into one line using a procedure
+select 1,'abcxabcyabcz' from dual;
+
+-- even though the problems can be a-z, the requested answer just wants the number of unique characters
+-- so, let's find a way to remove duplicates
+-- funny, converting the string into rows would make this easy by using distinct
+-- pulling straight from the internet
+with t as (select 'abcd' as str from dual)
+select level as n, substr(str,level,1) as val
+from   t
+connect by substr(str,level,1) is not null
+/
+
+with t as (select 'abcxabcyabcz' as str from dual)
+select level as n, substr(str,level,1) as val
+from   t
+connect by substr(str,level,1) is not null
+/
+
+select distinct val from (
+with t as (select 'abcxabcyabcz' as str from dual)
+select level as n, substr(str,level,1) as val
+from   t
+connect by substr(str,level,1) is not null
+)
+/
+
+select count(distinct val) from (
+with t as (select 'abcxabcyabcz' as str from dual)
+select level as n, substr(str,level,1) as val
+from   t
+connect by substr(str,level,1) is not null
+)
+/
+-- done!

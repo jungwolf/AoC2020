@@ -1,0 +1,59 @@
+with t as (select 'abcd,123,defoifcd,87765' as str from dual)
+  2  --
+  3  select level as n, regexp_substr(str,'[^,]+',1,level) as val
+  4  from   t
+  5* connect by regexp_substr(str,'[^,]+',1,level) is not null
+ N VAL
+-- -----------------------
+ 1 abcd
+ 2 123
+ 3 defoifcd
+ 4 87765
+ 
+with t as (
+           select 'abcd,123,defoifcd,87765' as str from dual
+          )
+select  extractvalue(value(x), '/b') x
+  from  t,
+        table(
+              xmlsequence(
+                          xmltype('&lt;a&gt;&lt;b&gt;' || replace(str, ',', '&lt;/b&gt;&lt;b&gt;') || '&lt;/b&gt;&lt;/a&gt;' ).extract('/*/*')
+                         )
+             ) x
+/
+X
+----------
+abcd
+123
+defoifcd
+87765
+
+ 1  with t as (select 'This is some sample text that needs splitting into words' as txt from dual)
+  2  select x.*
+  3  from t
+  4      ,xmltable('x/y'
+  5                passing xmltype('&lt;x&gt;&lt;y&gt;'||replace(t.txt,' ','&lt;/y&gt;&lt;y&gt;')||'&lt;/y&gt;&lt;/x&gt;')
+  6                columns word varchar2(20) path '.'
+  7*              ) x
+SQL&gt; /
+
+WORD
+--------------------
+This
+is
+some
+sample
+text
+that
+needs
+splitting
+into
+words
+
+
+
+with t as (select 'abcd' as str from dual)
+--
+select level as n, substr(str,level,1) as val
+from   t
+connect by substr(str,1,level) is not null
