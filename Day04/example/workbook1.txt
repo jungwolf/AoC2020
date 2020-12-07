@@ -57,3 +57,16 @@ insert into day04_password_elements values ('cid', 'Country ID','Y');
 commit;
 select * from day04_password_elements;
 
+-- day04_example_passport_lines, day04_password_elements
+select * from day04_example_passport_lines;
+select * from day04_password_elements;
+
+-- create function to get the value given a key
+create or replace function get_keyvalue_value (string varchar2, key varchar2, seperator varchar2, deliminater varchar2) return varchar2 as
+begin
+  return 'x';
+end;
+/
+select get_keyvalue_value('boo','a','b','c') from dual;
+-- initial test
+
