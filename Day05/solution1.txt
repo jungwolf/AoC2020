@@ -1,0 +1,46 @@
+/*
+The seat assignments are stored in table day05_input column xline.
+The seat assignments are a binary encoding using 'FBRL' as '0110' respectively
+
+I create a function to translate binary strings stored in text into number.
+  binary_string_to_number(varchar2) return number
+*/
+
+/*
+read the input:
+  select xline seat from day05_input
+
+Use translate to turn the 'FBRL' characters into 0/1 digits
+  select translate(seat,'FBRL','0110') bin, seat from (
+
+The first 7 bits determine the row, the last 3 determine the column
+I also return the full string for reasons
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+
+The question never asks for the row or column, only seat_id!
+In that case, convert the string to a number and find the max value.
+  select max(binary_string_to_number(bin)) max_seat_id
+
+-- this does the work if you want to work on row and column
+select 
+  max(binary_string_to_number(bin)) max_seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select xline seat from day05_input
+    )
+  )
+)
+
+Below is the minimal answer.
+*/
+
+-- run create_binary_string_to_number.sql first
+select 
+  max(binary_string_to_number(bin)) max_seat_id
+from (
+  select translate(seat,'FBRL','0110') bin from (
+    select xline seat from day05_input
+  )
+)
+;

@@ -1,0 +1,45 @@
+/* the solution for part1 provides the list seat_ids for part2
+  We're looking for the only "seat, gap, seat" pattern in the seat_id list.
+  Oracle isn't great at returning rows that don't exist. So not going to look for "row, null, row".
+  Instead, we'll note that most seat_ids are 1 more than the previous seat_id.
+  The seat we want is a missing number, so the gap is 2.
+  Find the seat_id that is 2 greater than the previous seat_id, then subtract 1!
+
+Seat_id is given by the first part's solution:
+    select binary_string_to_number(bin) seat_id
+
+This is the heart of the solution. Lag() is a function that let's you see the results from other rows.
+So it gives current seat_id, the previous seat_id, and the difference between the two.
+We don't really need to expose lag1 since that information is already used to calculate gap. I leave it out of the solution.
+  select seat_id, lag(seat_id,1) over (order by seat_id) lag1
+    ,seat_id - lag(seat_id,1) over (order by seat_id) gap
+  
+Here, find the gap=2, which is the seat *after* the gap, then subtract 1 to display the gap.
+The gap is my seat.
+  select seat_id-1 myseat
+  from (
+  ...
+  ) 
+  where gap=2;
+
+Function binary_string_to_number should still exist from part 1.
+*/
+
+select 
+ seat_id-1 myseat
+from (
+  select seat_id
+    ,seat_id - lag(seat_id,1) over (order by seat_id) gap
+  from (
+    select 
+      binary_string_to_number(bin) seat_id
+    from (
+      select
+        translate(seat,'FBRL','0110') bin, seat 
+      from (
+        select xline seat from day05_input
+      )
+    )
+  )
+) 
+where gap=2;
