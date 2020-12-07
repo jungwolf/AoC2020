@@ -19,9 +19,10 @@ commit;
 -- sqlldr is such a pain...
 
 
-create table day04_example_passports (full_passport varchar2(4000));
+drop table day04_example_passport_lines;
+create table day04_example_passport_lines (full_passport varchar2(4000));
 
-create or replace procedure day04_example_create_passports as
+create or replace procedure day04_example_create_passport_lines as
   l_full_line varchar2(4000);
 begin
   for i in (select xline from day04_example order by lineno) loop
