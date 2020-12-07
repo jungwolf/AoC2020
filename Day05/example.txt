@@ -1,0 +1,68 @@
+-- test input
+select 'FBFBBFFRLR' seat from dual;
+-- binary numbers, so translate them to 0 or 1
+select translate(seat,'FBRL','0110') bin from (
+  select 'FBFBBFFRLR' seat from dual
+);
+-- split into the row and column
+select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column from (
+ select translate(seat,'FBRL','0110') bin from (
+  select 'FBFBBFFRLR' seat from dual
+ )
+)
+;
+
+-- convert to decimal
+-- oracle's to_number function doesn't have a binary mask
+create or replace function binary_string_to_number(bin varchar2) return number as
+  bin_to_num_sql varchar2(64);
+  x number;
+begin
+  bin_to_num_sql:=replace(bin,'1',',1');
+  bin_to_num_sql:=replace(bin_to_num_sql,'0',',0');
+  bin_to_num_sql:='select bin_to_num('||substr(bin_to_num_sql,2)||') from dual';
+  execute immediate bin_to_num_sql into x;
+  return x;
+end;
+/
+select binary_string_to_number('110') from dual;
+
+-- convert to decimal
+select binary_string_to_number(bin_row) the_row, binary_string_to_number(bin_column) the_column from (
+select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column from (
+ select translate(seat,'FBRL','0110') bin from (
+  select 'FBFBBFFRLR' seat from dual
+ )
+)
+)
+;
+
+-- column, row, id
+select 
+  binary_string_to_number(bin_row) the_row
+  , binary_string_to_number(bin_column) the_column
+  , binary_string_to_number(bin) seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select 'FBFBBFFRLR' seat from dual
+    )
+  )
+)
+;
+-- test the other examples
+select 
+  binary_string_to_number(bin_row) the_row
+  , binary_string_to_number(bin_column) the_column
+  , binary_string_to_number(bin) seat_id
+from (
+  select substr(bin,1,7) bin_row, substr(bin,8,3) bin_column, bin from (
+    select translate(seat,'FBRL','0110') bin, seat from (
+      select 'FBFBBFFRLR' seat from dual
+      union all select 'BFFFBBFRRR' seat from dual
+      union all select 'FFFBBBFRRR' seat from dual
+      union all select 'BBFFBBFRLL' seat from dual
+    )
+  )
+)
+;
