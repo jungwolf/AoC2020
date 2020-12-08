@@ -29,9 +29,8 @@ end;
 exec day04_part1_create_passport_lines;
 commit;
 
--- Ug. External table is catch extra CR/LF values...
+-- External table source file has Windows cf/lf
 -- used dos2unix on the input.txt file
-
 
 -- translate example solution to use day04 data
 select count(*) valid_passports from (
@@ -50,4 +49,5 @@ group by gno
 having count(*)=7
 order by gno
 );
+-- worked!
 -- 230

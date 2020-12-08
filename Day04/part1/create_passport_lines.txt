@@ -1,0 +1,29 @@
+/*
+use a quick procedure to put the passports into one line instead of multiline
+*/
+
+drop table day04_part1_passport_lines;
+create table day04_part1_passport_lines (lineno number,full_passport varchar2(4000));
+
+create or replace procedure day04_part1_create_passport_lines as
+  l_full_line varchar2(4000);
+  l_lineno number := 1;
+begin
+  for i in (select xline from day04_data order by lineno) loop
+    if i.xline is null then
+      insert into day04_part1_passport_lines values (l_lineno,l_full_line);
+      l_full_line:= null;
+	  l_lineno:= l_lineno +1;
+    else
+      l_full_line:=l_full_line||' '||i.xline;
+    end if;
+  end loop;
+  if l_full_line is not null then
+    insert into day04_part1_passport_lines values (l_lineno,l_full_line);
+  end if;  
+end;
+/
+
+exec day04_part1_create_passport_lines;
+commit;
+select * from day04_part1_passport_lines;
