@@ -1,7 +1,9 @@
-select * from day04_example;
 /*
 use a quick procedure to put the passports into one line instead of multiline
 */
+
+drop table day04_example_passport_lines;
+create table day04_example_passport_lines (lineno number,full_passport varchar2(4000));
 
 create or replace procedure day04_example_create_passport_lines as
   l_full_line varchar2(4000);
@@ -24,4 +26,3 @@ end;
 
 exec day04_example_create_passport_lines;
 commit;
-select * from day04_example_passport_lines;

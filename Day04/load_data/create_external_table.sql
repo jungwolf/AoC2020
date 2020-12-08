@@ -12,9 +12,10 @@ ORGANIZATION EXTERNAL (
     MISSING FIELD VALUES ARE NULL
     (
       lineno recnum
-      , xline CHAR
+      , xline CHAR(4000)
     )
   )
   LOCATION ('Day04_input.txt')
 )
 REJECT LIMIT 0;
+

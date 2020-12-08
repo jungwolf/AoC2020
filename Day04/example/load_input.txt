@@ -1,0 +1,34 @@
+-- test data is small, just load the data
+-- create table/insert data
+drop table day04_example;
+create table day04_example (lineno number, xline varchar2(4000));
+insert into day04_example values(1,'ecl:gry pid:860033327 eyr:2020 hcl:#fffffd');
+insert into day04_example values(2,'byr:1937 iyr:2017 cid:147 hgt:183cm');
+insert into day04_example values(3,'');
+insert into day04_example values(4,'iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884');
+insert into day04_example values(5,'hcl:#cfa07d byr:1929');
+insert into day04_example values(6,'');
+insert into day04_example values(7,'hcl:#ae17e1 iyr:2013');
+insert into day04_example values(8,'eyr:2024');
+insert into day04_example values(9,'ecl:brn pid:760753108 byr:1931');
+insert into day04_example values(10,'hgt:179cm');
+insert into day04_example values(11,'');
+insert into day04_example values(12,'hcl:#cfa07d eyr:2025 pid:166559648');
+insert into day04_example values(13,'iyr:2011 ecl:brn hgt:59in');
+commit;
+
+-- the problem gives more configuration data so make a table for them
+create table day04_password_elements (
+  element varchar2(3)
+  , description varchar2(50)
+  , optional varchar2(1)
+);
+insert into day04_password_elements values ('byr', 'Birth Year','N');
+insert into day04_password_elements values ('iyr', 'Issue Year','N');
+insert into day04_password_elements values ('eyr', 'Expiration Year','N');
+insert into day04_password_elements values ('hgt', 'Height','N');
+insert into day04_password_elements values ('hcl', 'Hair Color','N');
+insert into day04_password_elements values ('ecl', 'Eye Color','N');
+insert into day04_password_elements values ('pid', 'Passport ID','N');
+insert into day04_password_elements values ('cid', 'Country ID','Y');
+commit;

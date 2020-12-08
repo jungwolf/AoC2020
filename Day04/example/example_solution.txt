@@ -1,0 +1,49 @@
+/*
+run file load_input.txt to create the base data
+  day04_example - input data
+  day04_password_elements - passport fields as given in the problem
+run file create_passport_lines.txt to create a new table 
+  day04_example_passport_lines - aggregates multiline passwords into one line
+*/ 
+
+select count(*) valid_passports from (
+select gno, count(*) from (
+with t (gno, pp_elements, full_passport, levels) as (
+            select lineno gno, regexp_substr(full_passport,'[^ ]+',1,1)           , full_passport    , 1        from day04_example_passport_lines
+  union all select gno    , regexp_substr(full_passport,'[^ ]+',1,levels+1), full_passport, levels+1 from t
+              where regexp_substr(full_passport,'[^ ]+',1,levels+1) is not null
+  )
+select gno, pp_elements, e.optional
+from t, day04_password_elements e
+where substr(t.pp_elements,1,3) = e.element
+  and e.optional = 'N'
+)
+group by gno
+having count(*)=7
+order by gno
+);
+ 
+
+
+/* But why?
+
+-- sorry, for a different time
+
+select count(*) valid_passports from (
+select gno, count(*) from (
+with t (gno, pp_elements, full_passport, levels) as (
+            select lineno gno, regexp_substr(full_passport,'[^ ]+',1,1)           , full_passport    , 1        from day04_example_passport_lines
+  union all select gno    , regexp_substr(full_passport,'[^ ]+',1,levels+1), full_passport, levels+1 from t
+              where regexp_substr(full_passport,'[^ ]+',1,levels+1) is not null
+  )
+select gno, pp_elements, e.optional
+from t, day04_password_elements e
+where substr(t.pp_elements,1,3) = e.element
+  and e.optional = 'N'
+)
+group by gno
+having count(*)=7
+order by gno
+);
+ 
+  
