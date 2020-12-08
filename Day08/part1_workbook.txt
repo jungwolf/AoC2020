@@ -1,0 +1,11 @@
+-- will a straight port from example work?
+select level, lineno, op, arg, nextline, sum(decode(op,'acc',arg,0)) over (order by level) reg1 from (
+  select lineno, op, arg, decode(op,'jmp',lineno+arg,lineno+1) nextline from (
+    select lineno, substr(xline,1,3) op, to_number(substr(xline,5)) arg from day08_data
+  )
+)
+connect by nocycle prior nextline=lineno start with lineno = 1
+order by level
+;
+-- last line
+-- 204	295	acc	-2	296	2025
