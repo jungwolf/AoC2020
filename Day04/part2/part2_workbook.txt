@@ -1,0 +1,23 @@
+select ELEMENT, DESCRIPTION, OPTIONAL from day04_password_elements;
+
+-- let's going the two together
+with t (gno, pp_elements, full_passport, levels) as (
+            select lineno gno, regexp_substr(full_passport,'[^ ]+',1,1)           , full_passport    , 1        from day04_example_passport_lines
+  union all select gno    , regexp_substr(full_passport,'[^ ]+',1,levels+1), full_passport, levels+1 from t
+              where regexp_substr(full_passport,'[^ ]+',1,levels+1) is not null
+  )
+select gno, pp_elements, e.optional
+from t, day04_password_elements e
+where substr(t.pp_elements,1,3) = e.element
+order by gno;
+
+-- let's going the two together
+with t (gno, pp_elements, full_passport, levels) as (
+            select lineno gno, regexp_substr(full_passport,'[^ ]+',1,1)           , full_passport    , 1        from day04_example_passport_lines
+  union all select gno    , regexp_substr(full_passport,'[^ ]+',1,levels+1), full_passport, levels+1 from t
+              where regexp_substr(full_passport,'[^ ]+',1,levels+1) is not null
+  )
+select gno, substr(pp_elements,1,3) attribute, substr(pp_elements,5) value, e.optional
+from t, day04_password_elements e
+where substr(t.pp_elements,1,3) = e.element
+order by gno;
