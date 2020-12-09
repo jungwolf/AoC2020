@@ -1,0 +1,141 @@
+-- will the example solution work here too?
+-- preable is 25 lines, and window is 25 lines
+select lineno, xline, five_previous
+ , decode(instr(five_previous,' '||xline||' '),0,'N','Y') valid from (
+select lineno, xline
+  , (select 
+       ' '||listagg(e.xline+f.xline,' ') within group (order by 1)||' '
+     from day09_data e, day09_data f
+     where e.lineno between d.lineno-25 and d.lineno-1
+       and f.lineno between d.lineno-25 and d.lineno-1
+       and e.lineno > f.lineno
+    ) five_previous
+from day09_data d
+)
+where lineno > 25
+/
+
+-- [Error] Execution (1012: 1): ORA-01489: result of string concatenation is too long
+-- I was afraid of that. How to whittle it down?
+-- may I don't need to generate the listagg?
+select lineno, xline, five_previous
+ , decode(instr(five_previous,' '||xline||' '),0,'N','Y') valid from (
+select lineno, xline
+  , (select max(sums) from ( 
+     (select 
+       e.xline+f.xline sums
+     from day09_data e, day09_data f
+     where e.lineno between d.lineno-25 and d.lineno-1
+       and f.lineno between d.lineno-25 and d.lineno-1
+       and e.lineno > f.lineno
+    )
+    ) where sums = xline) five_previous
+from day09_data d
+)
+where lineno > 25
+/
+
+-- pulled out of out wrapper
+select lineno, xline
+  , (select max(sums) from ( 
+     (select 
+       e.xline+f.xline sums
+     from day09_data e, day09_data f
+     where e.lineno between d.lineno-25 and d.lineno-1
+       and f.lineno between d.lineno-25 and d.lineno-1
+       and e.lineno > f.lineno
+    )
+    ) where sums = xline) five_previous
+from day09_data d
+where lineno > 25
+/
+
+-- clean it up
+select lineno, xline
+  , (select max(sums)
+     from ( 
+       (select 
+          e.xline+f.xline sums
+        from day09_data e, day09_data f
+        where e.lineno between d.lineno-25 and d.lineno-1
+          and f.lineno between d.lineno-25 and d.lineno-1
+          and e.lineno > f.lineno
+       )
+     )
+     where sums = xline
+    ) five_previous
+from day09_data d
+where lineno > 25
+/
+
+
+-- final wrapper
+select lineno, xline, five_previous
+from (
+  select lineno, xline
+    , (select max(sums)
+       from ( 
+         (select 
+            e.xline+f.xline sums
+          from day09_data e, day09_data f
+          where e.lineno between d.lineno-25 and d.lineno-1
+            and f.lineno between d.lineno-25 and d.lineno-1
+            and e.lineno > f.lineno
+         )
+       )
+       where sums = xline
+      ) five_previous
+  from day09_data d
+  where lineno > 25
+)
+where five_previous is null
+/
+--521	25918798	
+--That's not the right answer; your answer is too low.
+-- I put 521, but it want the number itself
+-- 25918798
+-- That's it!
+
+-- some cleanup
+select xline
+from (
+  select lineno, xline
+    , (select max(sums)
+       from ( 
+         (select 
+            e.xline+f.xline sums
+          from day09_data e, day09_data f
+          where e.lineno between d.lineno-25 and d.lineno-1
+            and f.lineno between d.lineno-25 and d.lineno-1
+            and e.lineno > f.lineno
+         )
+       )
+       where sums = xline
+      ) five_previous
+  from day09_data d
+  where lineno > 25
+)
+where five_previous is null
+/
+
+-- once more
+select min(xline) first_missing_sum
+from (
+  select lineno, xline
+    , (select max(sums)
+       from ( 
+         (select 
+            e.xline+f.xline sums
+          from day09_data e, day09_data f
+          where e.lineno between d.lineno-25 and d.lineno-1
+            and f.lineno between d.lineno-25 and d.lineno-1
+            and e.lineno > f.lineno
+         )
+       )
+       where sums = xline
+      ) five_previous
+  from day09_data d
+  where lineno > 25
+)
+where five_previous is null
+/

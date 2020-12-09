@@ -1,0 +1,27 @@
+-- assume input is in table day09_data as (line number in text file), (raw text string)
+--   fields (lineno, xline)
+-- solution first, detailed explaination second
+
+select min(xline) first_missing_sum
+from (
+  select lineno, xline
+    , (select max(sums)
+       from ( 
+         (select 
+            e.xline+f.xline sums
+          from day09_data e, day09_data f
+          where e.lineno between d.lineno-25 and d.lineno-1
+            and f.lineno between d.lineno-25 and d.lineno-1
+            and e.lineno > f.lineno
+         )
+       )
+       where sums = xline
+      ) five_previous
+  from day09_data d
+  where lineno > 25
+)
+where five_previous is null
+/
+
+
+-- explaination in progress

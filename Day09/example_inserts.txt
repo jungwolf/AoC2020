@@ -1,0 +1,26 @@
+drop table day09_example;
+drop sequence day09_line_sq;
+create table day09_example (lineno number, xline varchar2(4000));
+create sequence day09_line_sq;
+
+insert into day09_example values (day09_line_sq.nextval, '35');
+insert into day09_example values (day09_line_sq.nextval, '20');
+insert into day09_example values (day09_line_sq.nextval, '15');
+insert into day09_example values (day09_line_sq.nextval, '25');
+insert into day09_example values (day09_line_sq.nextval, '47');
+insert into day09_example values (day09_line_sq.nextval, '40');
+insert into day09_example values (day09_line_sq.nextval, '62');
+insert into day09_example values (day09_line_sq.nextval, '55');
+insert into day09_example values (day09_line_sq.nextval, '65');
+insert into day09_example values (day09_line_sq.nextval, '95');
+insert into day09_example values (day09_line_sq.nextval, '102');
+insert into day09_example values (day09_line_sq.nextval, '117');
+insert into day09_example values (day09_line_sq.nextval, '150');
+insert into day09_example values (day09_line_sq.nextval, '182');
+insert into day09_example values (day09_line_sq.nextval, '127');
+insert into day09_example values (day09_line_sq.nextval, '219');
+insert into day09_example values (day09_line_sq.nextval, '299');
+insert into day09_example values (day09_line_sq.nextval, '277');
+insert into day09_example values (day09_line_sq.nextval, '309');
+insert into day09_example values (day09_line_sq.nextval, '576');
+commit;

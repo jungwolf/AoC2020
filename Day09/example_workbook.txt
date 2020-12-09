@@ -1,0 +1,95 @@
+select * from day09_data;
+
+-- can I aggregate the last 5 values?
+
+-- today I learned listagg doesn't support a window clause
+select lineno, xline
+  ,listagg(xline,';') within group (order by lineno) over (rows 5 preceding) a
+from day09_example;
+
+select lineno, xline
+  ,listagg(xline,';') within group ( order by lineno ) over (partition by lineno,lineno-1)  a
+from day09_example;
+
+-- let's get heavy handed
+select xline from day09_example e where e.lineno between 5 and 10
+/
+
+-- fine...
+select 
+  listagg(xline,' ') within group (order by lineno)
+from day09_example e
+where e.lineno between 5 and 10
+/
+
+-- so ugly
+-- but it works
+select lineno, xline
+  , (select 
+       listagg(xline,' ') within group (order by lineno)
+     from day09_example e
+     where e.lineno between d.lineno-5 and d.lineno-1
+    ) five_previous
+from day09_example d;
+/*
+1	35	
+2	20	35
+3	15	35 20
+4	25	35 20 15
+5	47	35 20 15 25
+6	40	35 20 15 25 47
+7	62	20 15 25 47 40
+8	55	15 25 47 40 62
+...
+*/
+
+-- maybe take the last five and generate all the sums, then find the test value in the list?
+select '20 15 25 47 40' from dual;
+-- wait, what about doing a cartesian join again?
+select lineno, xline
+  , (select 
+       listagg(xline,' ') within group (order by lineno)
+     from day09_example e, day09_example f
+     where e.lineno between d.lineno-5 and d.lineno-1
+       and f.lineno between d.lineno-5 and d.lineno-1
+    ) five_previous
+from day09_example d;
+
+-- now I really feel dirty
+-- count is just a check, isn't really useful
+select lineno, xline
+  , (select 
+       listagg(e.xline+f.xline,' ') within group (order by 1)||' count '|| count(*)
+     from day09_example e, day09_example f
+     where e.lineno between d.lineno-5 and d.lineno-1
+       and f.lineno between d.lineno-5 and d.lineno-1
+       and e.lineno > f.lineno
+    ) five_previous
+from day09_example d;
+
+-- adding leading and trailing ' ' to make delimiter search easier
+select lineno, xline
+  , (select 
+       ' '||listagg(e.xline+f.xline,' ') within group (order by 1)||' '
+     from day09_example e, day09_example f
+     where e.lineno between d.lineno-5 and d.lineno-1
+       and f.lineno between d.lineno-5 and d.lineno-1
+       and e.lineno > f.lineno
+    ) five_previous
+from day09_example d;
+
+-- now that we have our output...
+select lineno, xline, five_previous
+ , decode(instr(five_previous,' '||xline||' '),0,'N','Y') valid from (
+select lineno, xline
+  , (select 
+       ' '||listagg(e.xline+f.xline,' ') within group (order by 1)||' '
+     from day09_example e, day09_example f
+     where e.lineno between d.lineno-5 and d.lineno-1
+       and f.lineno between d.lineno-5 and d.lineno-1
+       and e.lineno > f.lineno
+    ) five_previous
+from day09_example d
+)
+where lineno > 5
+/
