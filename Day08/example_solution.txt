@@ -1,19 +1,18 @@
 create table day08_example (lineno number, xline varchar2(4000));
 
 insert into day08_example
-select 
-            1,'nop +0' from dual
-  union all 2,'acc +1' from dual
-  union all 3,'jmp +4' from dual
-  union all 4,'acc +3' from dual
-  union all 5,'jmp -3' from dual
-  union all 6,'acc -99' from dual
-  union all 7,'acc +1' from dual
-  union all 8,'jmp -4' from dual
-  union all 9,'acc +6' from dual
+            select 1,'nop +0' from dual
+  union all select 2,'acc +1' from dual
+  union all select 3,'jmp +4' from dual
+  union all select 4,'acc +3' from dual
+  union all select 5,'jmp -3' from dual
+  union all select 6,'acc -99' from dual
+  union all select 7,'acc +1' from dual
+  union all select 8,'jmp -4' from dual
+  union all select 9,'acc +6' from dual
 /
 commit;
-
+select * from day08_example;
 
 select level, lineno, op, arg, nextline, sum(decode(op,'acc',arg,0)) over (order by level) reg1 from (
   select lineno, op, arg, decode(op,'jmp',lineno+arg,lineno+1) nextline from (
