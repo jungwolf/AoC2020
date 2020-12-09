@@ -2,26 +2,145 @@
 --   fields (lineno, xline)
 -- solution first, detailed explaination second
 
-select min(xline) first_missing_sum
+-- helper view, just changes xline to a number and gives it a new name
+create or replace view day09_data_parsed as
+select lineno, to_number(xline) a_number
+from day09_data
+;
+
+select a_number first_missing_sum
 from (
-  select lineno, xline
-    , (select max(sums)
+  select lineno, a_number
+    , (select distinct sums
        from ( 
          (select 
-            e.xline+f.xline sums
-          from day09_data e, day09_data f
+            e.a_number+f.a_number sums
+          from day09_data_parsed e, day09_data_parsed f
           where e.lineno between d.lineno-25 and d.lineno-1
             and f.lineno between d.lineno-25 and d.lineno-1
             and e.lineno > f.lineno
          )
        )
-       where sums = xline
-      ) five_previous
-  from day09_data d
+       where sums = a_number
+      ) sum_or_null
+  from day09_data_parsed d
   where lineno > 25
 )
-where five_previous is null
+where sum_or_null is null
+order by lineno fetch first 1 rows only
 /
 
 
--- explaination in progress
+/*
+
+Scan down through the list.
+For each item, generate all the possible sums pairs from the prevous 25 items.
+Check if any of these sums match the current number.
+Return the row and the sum if it exists, otherwise null.
+Return the first number that has a null instead of a sum.
+
+
+  Added a view to change the datatype to number.
+  Changed the name from xline to a_number to hopefully improve readability
+01: create or replace view day09_data_parsed as
+02: select lineno, to_number(xline) a_number
+03: from day09_data
+04: ;
+
+-- the solution
+01: select min(a_number) first_null_sum
+02: from (
+03:   select lineno, a_number
+04:    , (select distinct sums
+05:        from ( 
+06:          (select 
+07:             e.a_number+f.a_number sums
+08:           from day09_data_parsed e, day09_data_parsed f
+09:           where e.lineno between d.lineno-25 and d.lineno-1
+10:             and f.lineno between d.lineno-25 and d.lineno-1
+11:             and e.lineno > f.lineno
+12:          )
+13:        )
+14:        where sums = a_number
+15:       ) sum_or_null
+16:   from day09_data_parsed d
+17:   where lineno > 25
+18: )
+19: where sum_or_null is null
+20: /
+
+03:   select lineno, a_number
+15:       (a subquery) sum_or_null
+16:   from day09_data_parsed d
+17:   where lineno > 25
+  Scan through the list, skip the first 25 line preamble.
+  The real work happens in the subquery for sum_or_null.
+
+  ** concept explaination**
+  The select clause elements are usually simple like a column name (employee_name), calculation (salary*1.2), or even a function ( upper_case('hello') ).
+  An element can also be a subquery. The subquery is executed for every row returned by the main query.
+  The main limitation is it can only return one value. It is one column, it can't dynamically add more columns to the select list.
+  You can give the subquery (the results of the subquery) an alias, like any other column.
+  
+15:       (a subquery) sum_or_null
+  For this solution, I push all the real work into a subquery in the select clause.
+  This work is done for each line in the original list.
+  I gave it the alias "sum_or_null".
+
+-- let's pick this apart. It is the heart of the matter.
+06:          (select 
+07:             e.a_number+f.a_number sums
+08:           from day09_data_parsed e, day09_data_parsed f
+09:           where e.lineno between d.lineno-25 and d.lineno-1
+10:             and f.lineno between d.lineno-25 and d.lineno-1
+11:             and e.lineno > f.lineno
+
+08:           from day09_data_parsed e, day09_data_parsed f
+  First, this is a self-join. We saw one earlier in the puzzles.
+
+09:           where e.lineno between d.lineno-25 and d.lineno-1
+10:             and f.lineno between d.lineno-25 and d.lineno-1
+  d.lineno is the line number we're processing from the original input list.
+  Note: "X between Y and Z" is shorthand for "X >= Y and X <= Z", so it is inclusive of the two values Y and Z.
+  From view e and f (themselves full copies of the input list), we are grabbing the 25 rows before the current line. Two views, so that's twice.
+
+11:             and e.lineno > f.lineno
+  This is similar to a Cartesian join. I'm using ">" for two reasons.
+  The problem says a previous number can't be added to itself. e.lineno != f.lineno takes care of that requirement.
+  For sums, A+B=B+A. To make things a little faster, I'm only checking A+B. "e.lineno > f.lineno" lets me ignore the B+A rows.
+
+06:          (select 
+07:             e.a_number+f.a_number sums
+  Here I calculate the sum for each pair of records in the last 25 lines.
+
+04:    , (select distinct sums
+05:        from ( 
+06-12: ...
+13:        )
+14:        where sums = a_number
+15:       ) sum_or_null
+  Lines 6-12 gave a list of all the possible sums.
+  Line 14, "where sums = a_number", gives me just the rows where the sum is equal to the original row's number.
+  Remember this is a subquery in the select list. It can only return a single value. I may get multiple rows, as in 5=1+4 and 5=2+3 would give me two rows.
+  Line 4 uses "distinct" to remove any duplicates. There should only be one unique sum, so this is also a useful check that I don't have a bug in the inner logic.
+  The query returns a null if no sums are found equal to the current number. Hence, "sum_or_null".
+
+01: select min(a_number) first_null_sum
+02: from (
+...
+18: )
+19: where sum_or_null is null
+  At this point I've computed the sum (or null) for all of the lines in the input.
+  Line 19 filters out all of the valid number.
+  Finally, line 1 returns the small of the invalid number.
+  
+  Did you notice? That's a bug! The problem asks for the first invalid number, not the smallest invalid number. I'm lucky my dataset had the same answer.
+  I can fix this by making two changes.
+01: select a_number first_null_sum 
+20: order by lineno fetch first 1 rows only
+
+  Line 21 orders the results by the lineno but only returns the first row. I have to change line 1 to remove the sum().
+
+  I kept the error in the explaination. The solution at the beginning has the correct answer.
+
+*/
