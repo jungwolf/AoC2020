@@ -1,1 +1,39 @@
 -- count all the ways to connect from 0 to your device, with or without using all of the cords.
+-- rerun part1_inserts.txt
+
+insert into day10_data select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_data;
+-- add 0 source
+insert into day10_data values (0,'0');
+commit;
+
+
+
+select * from day10_data order by lineno;
+
+create or replace view day10_joltage as
+select lineno, to_number(xline) joltage from day10_data;
+
+select * from day10_joltage;
+
+create or replace view day10_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_joltage order by joltage) d;
+
+select * from day10_joltage_ordered order by joltage_order;
+
+
+create or replace view day10_adapter_paths as
+  select level lvl, joltage, connect_by_isleaf isleaf, SYS_CONNECT_BY_PATH(joltage,':') path
+  from day10_joltage_ordered
+  start with joltage=0 connect by joltage between (prior joltage+1) and (prior joltage+3)
+/
+select * from day10_adapter_paths;
+
+
+--select max(joltage) from day10_joltage_ordered;
+--167
+--select * from day10_adapter_paths where joltage = 167;
+-- rows that finish with joltage 167 (my computer)
+select * from day10_adapter_paths where isleaf = 1 and joltage=167;
+
+select count(*) from day10_adapter_paths where isleaf = 1 and joltage=167;
+-- ? rows, as expected.
