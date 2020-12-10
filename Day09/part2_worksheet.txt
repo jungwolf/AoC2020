@@ -1,0 +1,146 @@
+-- part 1 answer, 25918798
+-- I'm taking this as a given instead of generating it here.
+-- find a contiguous set of numbers that add up to 25918798
+-- report the sum of the smallest and largest numbers in the range
+
+select lineno, a_number from day09_data_parsed where a_number < 25918798;
+
+-- running total
+select lineno, a_number, sum(a_number) over (order by lineno) reg1
+from day09_data_parsed 
+where a_number < 25918798;
+
+-- small test
+drop table day09_x;
+create table day09_x (lineno number, a number);
+
+insert into day09_x values (1,979);
+insert into day09_x values (2,1721);
+insert into day09_x values (3,366);
+insert into day09_x values (4,299);
+insert into day09_x values (5,675);
+insert into day09_x values (6,1456);
+commit;
+
+select sum(a) from day09_x where lineno in (3,4,5);
+-- target in test is 1340 for 3,4,5
+
+select lineno, a, sum(a) over (order by lineno)
+from day09_x
+order by lineno
+/
+-- can't assume the a value are larger or smaller over time
+
+select lineno, a
+  , sum(a) over (order by lineno)
+  , 1340 - sum(a) over (order by lineno) 
+from day09_x
+order by lineno
+/
+/*
+1	979	979
+2	1721	2700
+3	366	3066
+4	299	3365
+5	675	4040
+6	1456	5496
+*/
+select
+    a.lineno al, a.a aa, a.sm asm
+  , b.lineno bl, b.a ba, b.sm bsm
+  , b.sm - a.sm
+  , decode(b.sm - a.sm,1340,'Y','N')
+from (select lineno, a, sum(a) over (order by lineno) sm from day09_x) a
+  ,(select lineno, a, sum(a) over (order by lineno) sm from day09_x) b
+where a.lineno < b.lineno
+order by a.lineno, b.lineno
+;
+-- the low lineno is off by one
+-- sum_to_line(a) - sum_to_line(a) = 0
+-- sum_to_line(a+1) - sum_to_line(a) = just line (a+1)
+-- sum_to_line(a+2) - sum_to_line(a) = just line (a+1) + (a+2)
+-- etc.
+
+-- running total
+select lineno, a_number, sum(a_number) over (order by lineno) reg1
+from day09_data_parsed 
+where a_number < 25918798;
+
+-- running total
+select lineno, a_number, sum(a_number) over (order by lineno rows ) reg1
+from day09_data_parsed 
+where a_number < 25918798;
+
+-- running total
+select lineno, a_number
+  , sum(a_number) over (order by lineno ) - 25918798 sum_up -- first positive ln 391
+  , sum(a_number) over (order by lineno desc ) - 25918798 sum_down -- first negative 508
+  , sum(a_number) over ()
+from day09_data_parsed 
+where a_number < 25918798
+order by lineno;
+
+select
+    a.lineno al, a.a_number aa, a.sm asm
+  , b.lineno bl, b.a_number ba, b.sm bsm
+  , b.sm - a.sm
+--  , decode(b.sm - a.sm,25918798,'Y','N')
+from (select lineno, a_number, sum(a_number) over (order by lineno) sm from day09_data_parsed) a
+  ,(select lineno, a_number, sum(a_number) over (order by lineno) sm from day09_data_parsed) b
+where a.lineno < b.lineno
+  and b.sm - a.sm = 25918798
+order by a.lineno, b.lineno
+;
+
+-- note, the low line is the 0 base, which is to say the sum is from row low+1 to row high
+select
+    a.lineno alineno, a.a_number aa_number, a.sum_to_here asum_to_here
+  , b.lineno blineno, b.a_number ba_number, b.sum_to_here bsum_to_here
+  , b.sum_to_here - a.sum_to_here target
+--  , decode(b.sm - a.sm,25918798,'Y','N')
+from
+   (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) a
+  ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) b
+where a.lineno < b.lineno
+  and b.sum_to_here - a.sum_to_here = 25918798
+order by a.lineno, b.lineno
+;
+
+
+-- note, the low line is the 0 base, which is to say the sum is from row low+1 to row high
+with t as (
+select
+    a.lineno alineno, a.a_number aa_number, a.sum_to_here asum_to_here
+  , b.lineno blineno, b.a_number ba_number, b.sum_to_here bsum_to_here
+  , b.sum_to_here - a.sum_to_here target
+--  , decode(b.sm - a.sm,25918798,'Y','N')
+from
+   (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) a
+  ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) b
+where a.lineno < b.lineno
+  and b.sum_to_here - a.sum_to_here = 25918798
+)
+select *
+from t, day09_data_parsed d
+where d.lineno > t.alineno
+  and d.lineno <= t.blineno
+;
+
+-- note, the low line is the 0 base, which is to say the sum is from row low+1 to row high
+with t as (
+select
+    a.lineno alineno, a.a_number aa_number, a.sum_to_here asum_to_here
+  , b.lineno blineno, b.a_number ba_number, b.sum_to_here bsum_to_here
+  , b.sum_to_here - a.sum_to_here target
+--  , decode(b.sm - a.sm,25918798,'Y','N')
+from
+   (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) a
+  ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed where a_number < 25918798) b
+where a.lineno < b.lineno
+  and b.sum_to_here - a.sum_to_here = 25918798
+)
+select min(a_number), max(a_number), min(a_number)+max(a_number)
+from t, day09_data_parsed d
+where d.lineno > t.alineno
+  and d.lineno <= t.blineno
+;
