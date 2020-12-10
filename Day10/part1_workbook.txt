@@ -38,3 +38,57 @@ select a.path from (
 ) a
 where a.lvl = (select count(*) from day10_joltage)
 /
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------- restart
+select * from day10_data order by lineno;
+
+insert into day10_data select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_data;
+-- add 0 source
+insert into day10_data values (0,'0');
+commit;
+
+select * from day10_data order by lineno;
+
+create or replace view day10_joltage as
+select lineno, to_number(xline) joltage from day10_data;
+
+select * from day10_joltage;
+
+create or replace view day10_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_joltage order by joltage) d;
+
+select * from day10_joltage_ordered order by joltage_order;
+
+select joltage, joltage-lag(joltage) over (order by joltage) gaps from day10_joltage_ordered
+order by joltage;
+
+select gaps, count(*) from (
+  select joltage, joltage-lag(joltage) over (order by joltage) gaps from day10_joltage_ordered
+)
+where gaps is not null
+group by gaps
+order by gaps;
+
+select gaps, count(*) from (
+  select joltage, joltage-lag(joltage) over (order by joltage) gaps from day10_joltage_ordered
+)
+where gaps is not null and gaps != 2
+group by gaps
+order by gaps;
+-- going to do it manually
+select 71*32 from dual;
+--2272
+--too low

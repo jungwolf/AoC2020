@@ -31,6 +31,10 @@ where a.lvl = (select count(*) from day10_example_joltage)
 select * from adapter_path;
 
 
+create or replace view day10_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_joltage order by joltage) d;
+select * from day10_joltage_ordered order by joltage_order;
+
 
 -- get the rows...
 with t as (select path from adapter_path)
@@ -67,3 +71,49 @@ order by gaps;
 --1	7
 --3	5
 
+
+
+----------------- restart here 
+drop table day10_example;
+drop sequence day10_line_sq;
+create table day10_example (lineno number, xline varchar2(4000));
+create sequence day10_line_sq;
+
+
+insert into day10_example values (day10_line_sq.nextval, '16');
+insert into day10_example values (day10_line_sq.nextval, '10');
+insert into day10_example values (day10_line_sq.nextval, '15');
+insert into day10_example values (day10_line_sq.nextval, '5');
+insert into day10_example values (day10_line_sq.nextval, '1');
+insert into day10_example values (day10_line_sq.nextval, '11');
+insert into day10_example values (day10_line_sq.nextval, '7');
+insert into day10_example values (day10_line_sq.nextval, '19');
+insert into day10_example values (day10_line_sq.nextval, '6');
+insert into day10_example values (day10_line_sq.nextval, '12');
+insert into day10_example values (day10_line_sq.nextval, '4');
+commit;
+
+-- add my device
+insert into day10_example select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_example;
+-- add 0 source
+insert into day10_example values (0,'0');
+commit;
+
+select * from day10_example;
+
+
+create or replace view day10_example_joltage as
+select lineno, to_number(xline) joltage from day10_example;
+select * from day10_example_joltage;
+
+create or replace view day10_exp_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_example_joltage order by joltage) d;
+
+select * from day10_exp_joltage_ordered order by joltage_order;
+
+select gaps, count(*) from (
+  select joltage, joltage-lag(joltage) over (order by joltage) gaps from day10_exp_joltage_ordered
+)
+where gaps is not null
+group by gaps
+order by gaps;
