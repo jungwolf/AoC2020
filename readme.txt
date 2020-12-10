@@ -45,8 +45,18 @@ Distracted by Day 8.
 -Day 8
 -part 1
 Run programs using sql!
-I used "connect by" to keep state and walk through the program lines. The program had an infinite loop which is trivially handled by the "nocycle" clause.
+I used "connect by" to keep state and walk through the program lines. The program had an infinite loop which is trivially handled by the "nocycle" clause. Couldn't have done it without the research from Day 6.
 -part 2
 Programming through Cartesian joins. Debug a program by running hundreds of off-by-one variations!
 
 -Day 9
+"I am large, I contain Cartesian joins." -- Walt Whitman, known for pushing the boundary on BigO computation.
+-part 1
+Yet another Cartesian join.
+These are programming puzzles and assume, at a basic level, one can save state in variables between statements. That's a lot harder to do in a single sql statement.
+One way I'm getting around the issue is by brute forcing the solution using Cartesian joins and then filtering out the answer.
+-part 2
+Similar to the first but with a little math trick too. Fun.
+
+
+
