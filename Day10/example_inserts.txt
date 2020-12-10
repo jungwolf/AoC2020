@@ -1,0 +1,17 @@
+drop table day10_example;
+drop sequence day10_line_sq;
+create table day10_example (lineno number, xline varchar2(4000));
+create sequence day10_line_sq;
+
+
+insert into day10_example values (day09_line_sq.nextval, '16');
+insert into day10_example values (day09_line_sq.nextval, '10');
+insert into day10_example values (day09_line_sq.nextval, '15');
+insert into day10_example values (day09_line_sq.nextval, '5');
+insert into day10_example values (day09_line_sq.nextval, '1');
+insert into day10_example values (day09_line_sq.nextval, '11');
+insert into day10_example values (day09_line_sq.nextval, '7');
+insert into day10_example values (day09_line_sq.nextval, '19');
+insert into day10_example values (day09_line_sq.nextval, '6');
+insert into day10_example values (day09_line_sq.nextval, '12');
+insert into day10_example values (day09_line_sq.nextval, '4');
