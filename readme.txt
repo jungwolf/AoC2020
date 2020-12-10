@@ -5,6 +5,15 @@ My approach is to use SQL as much as possible. I'll use views sometimes to make 
 I will use PL/SQL if I can't find a pure sql solution or start to lose my mind.
 I load the test data into a table with columns (lineno number, xline varchar2(4000). 
 
+I was hooked when the puzzle for the first day let me write a sql statement that basically said "hey Oracle, give me the answer".
+Part 1 - "where a.a+b.a = 2020"
+Part 2 - "where a.a+b.a+c.a = 2020"
+That's magic.
+The rest of the puzzles have been a lot more work. I don't think sql is Turing complete and I've had to do a lot of thinking and research to fake it.
+Magic still happens sometimes. Do the heavy lifting and then get to a where clause, "hey Oracle, what IS the answer?" "where b.sum_to_here - a.sum_to_here = 25918798". 
+Poof. Done.
+
+
 Hightlights by day:
 
 -Day 1
