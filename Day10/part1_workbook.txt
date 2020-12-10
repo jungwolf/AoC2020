@@ -1,0 +1,40 @@
+create or replace view day10_joltage as
+select lineno, to_number(xline) joltage from day10_data;
+select * from day10_joltage;
+
+-- add my device
+insert into day10_data
+select max(lineno)+1, max(joltage)+3 from day10_joltage;
+
+-- add 0 source
+insert into day10_data values (0,0);
+
+commit;
+select * from day10_joltage;
+
+
+
+create or replace view adapter_path as
+select a.path from (
+  select level lvl, joltage, SYS_CONNECT_BY_PATH(joltage,':') path
+  from day10_joltage
+  start with joltage=0 connect by joltage between (prior joltage+1) and (prior joltage+3)
+) a
+where a.lvl = (select count(*) from day10_joltage)
+/
+
+select * from adapter_path;
+-- taking a long time
+-- what would help?
+
+create or replace view day10_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_joltage order by joltage) d;
+select * from day10_joltage_ordered order by joltage_order;
+
+select a.path from (
+  select level lvl, joltage, SYS_CONNECT_BY_PATH(joltage,':') path
+  from day10_joltage_ordered
+  start with joltage=0 connect by joltage between (prior joltage+1) and (prior joltage+3) and level < joltage_order + 4
+) a
+where a.lvl = (select count(*) from day10_joltage)
+/
