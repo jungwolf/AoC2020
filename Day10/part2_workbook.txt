@@ -37,3 +37,14 @@ select * from day10_adapter_paths where isleaf = 1 and joltage=167;
 
 select count(*) from day10_adapter_paths where isleaf = 1 and joltage=167;
 -- ? rows, as expected.
+
+
+
+------- new strategy
+-- count the choices at each juncture.
+select joltage
+  , decode( joltage-lag(joltage,1) over (order by joltage) ,1,'Y',' ') gap1
+  , decode( joltage-lag(joltage,2) over (order by joltage) ,2,'Y',' ') gap2
+  , decode( joltage-lag(joltage,3) over (order by joltage) ,3,'Y',' ') gap3
+from day10_joltage_ordered
+order by joltage ;
