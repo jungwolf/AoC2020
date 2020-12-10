@@ -1,0 +1,96 @@
+-- assume input is in table day09_data as (line number in text file), (raw text string)
+--   fields (lineno number, xline varchar2)
+-- using view day09_data_parsed which changes xline to a number and renames to a_number
+-- (lineno number, a_number number)
+-- solution first, detailed explaination second
+
+
+with t as (
+select
+    a.lineno alineno
+  , b.lineno blineno
+  , b.sum_to_here - a.sum_to_here target
+from
+   (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) a
+  ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) b
+where a.lineno < b.lineno
+  and b.sum_to_here - a.sum_to_here = 25918798
+)
+select min(a_number)+max(a_number) "encryption weakness"
+from t, day09_data_parsed d
+where d.lineno > t.alineno
+  and d.lineno <= t.blineno
+;
+
+
+/*
+
+  The key words in the problem statement for me are "contiguous" and "sum". From, "contiguous set of at least two numbers in your list which sum to the invalid number".
+  We want to find the running total of a number at line X up to the number at line Y that equals our invalid number.
+  Let's call sum_range the running total between two lines. sum_range(1,1) + sum_range(2,2) = sum_range(1,2).
+  More useful to me, sum_range(1,10)-sum_range(1-5)=sum_range(6-10).
+  I can use the running total to find the sum over arbitrary ranges.
+  
+  So let's do that.
+  
+  My magic number is 25918798.
+
+01: with t as (
+02: select
+03:     a.lineno alineno, a.a_number aa_number, a.sum_to_here asum_to_here
+04:   , b.lineno blineno, b.a_number ba_number, b.sum_to_here bsum_to_here
+05:   , b.sum_to_here - a.sum_to_here target
+06: from
+07:    (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) a
+08:   ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) b
+09: where a.lineno < b.lineno
+10:   and b.sum_to_here - a.sum_to_here = 25918798
+11: )
+12: select min(a_number), max(a_number), min(a_number)+max(a_number)
+13: from t, day09_data_parsed d
+14: where d.lineno > t.alineno
+15:   and d.lineno <= t.blineno
+16: ;
+
+  I'm going to let t do all the work this time. It is another kind of in-line view.
+06: from
+07:    (select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) a
+08:   ,(select lineno, a_number, sum(a_number) over (order by lineno) sum_to_here from day09_data_parsed) b
+  I sorted a list, I sorted it twice, now the where clause will tell who's naughty or nice.
+
+09: where a.lineno < b.lineno
+  I only want to look at ascending lists.
+
+10:   and b.sum_to_here - a.sum_to_here = 25918798
+  Sometimes sql lets you type a line "hey, give me the answer".
+  This gives us the sum_range(a+1,b) - sum_range(1,a) equal to 25918798.
+  My answer is lineno a+1 to lineno b.
+
+
+01: with t as (
+02: select
+03:     a.lineno alineno, a.a_number aa_number, a.sum_to_here asum_to_here
+04:   , b.lineno blineno, b.a_number ba_number, b.sum_to_here bsum_to_here
+05:   , b.sum_to_here - a.sum_to_here target
+  I just need to pass back a.lineno and b.lineno. The rest are left over from debugging.
+  I'll take them out of the final answer.
+
+  The puzzle asks for the largest and smallest numbers in the set.
+  They can easily be somewhere in the middle so I need to go back to the original table.
+
+12: select min(a_number), max(a_number), min(a_number)+max(a_number)
+13: from t, day09_data_parsed d
+14: where d.lineno > t.alineno
+15:   and d.lineno <= t.blineno
+16: ;
+  At this point standard aggregate functions to find answer. The final answer is min(a_number)+max(a_number).
+  I'll take the other two out of the official answer.
+  
+14: where d.lineno > t.alineno
+  Well, why is this strictly greater than? I searched for (b.sum_to_here - a.sum_to_here = 25918798), so why am I discarding a?
+  Remember sum_to_here is sum_range(1,a). sum_range(1,b)-sum_range(1,a) means I'm removing all rows from 1 to a.
+  The range I'm left with is sum_range(a+1,b). I could have used "a+1 >=.." but "a >" seems clearer to me.
+  
+  Done!
+  
+*/
