@@ -1,0 +1,69 @@
+-- use all rows to build a chain from 0 to max(joltage)+3.
+-- each "jolt" can join to something 1-3 jolts less than itself.
+-- In this example, when using every adapter, there are 7 differences of 1 jolt and 5 differences of 3 jolts.
+
+create or replace view day10_example_joltage as
+select lineno, to_number(xline) joltage from dba_examples;
+select * from day10_example_joltage;
+
+-- add my device
+insert into day10_example
+select max(lineno)+1, max(joltage)+3 from day10_example_joltage;
+-- add 0 source
+insert into day10_example
+select 0, 0 from day10_example_joltage;
+commit;
+select * from day10_example_joltage;
+
+select joltage from day10_example_joltage
+connect by joltage > between prior joltage-1 and prior joltage-3;
+
+
+create or replace view adapter_path as
+select a.path from (
+  select level lvl, joltage, SYS_CONNECT_BY_PATH(joltage,':') path
+  from day10_example_joltage
+  start with joltage=0 connect by joltage between (prior joltage+1) and (prior joltage+3)
+) a
+where a.lvl = (select count(*) from day10_example_joltage)
+/
+
+select * from adapter_path;
+
+
+
+-- get the rows...
+with t as (select path from adapter_path)
+select level as n, path, regexp_substr(path,'[^:]+',1,level) as val
+from   t
+connect by regexp_substr(path,'[^:]+',1,level) is not null
+/
+
+-- just the val?
+with t as (select path from adapter_path)
+select regexp_substr(path,'[^:]+',1,level) as val
+from   t
+connect by regexp_substr(path,'[^:]+',1,level) is not null
+/
+
+-- view it!
+create or replace view joltage_order as
+with t as (select path from adapter_path)
+select to_number(regexp_substr(path,'[^:]+',1,level)) as val
+from   t
+connect by regexp_substr(path,'[^:]+',1,level) is not null
+/
+
+select * from joltage_order;
+select val, val-lag(val) over (order by val) gaps from joltage_order
+order by val;
+
+select gaps, count(*) from (
+  select val, val-lag(val) over (order by val) gaps from joltage_order
+)
+where gaps is not null
+group by gaps
+order by gaps;
+--1	7
+--3	5
+
