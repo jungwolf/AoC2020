@@ -1,0 +1,245 @@
+-- count all the ways to connect from 0 to your device, with or without using all of the cords.
+-- I think I have a solution but I need to verify with the simpler examples.
+
+------------------------- initial insert example 2 -----------------------
+-- example 1
+drop table day10_example2;
+drop sequence day10_line_sq;
+create table day10_example2 (lineno number, xline varchar2(4000));
+create sequence day10_line_sq;
+
+insert into day10_example2 values (day10_line_sq.nextval, '28');
+insert into day10_example2 values (day10_line_sq.nextval, '33');
+insert into day10_example2 values (day10_line_sq.nextval, '18');
+insert into day10_example2 values (day10_line_sq.nextval, '42');
+insert into day10_example2 values (day10_line_sq.nextval, '31');
+insert into day10_example2 values (day10_line_sq.nextval, '14');
+insert into day10_example2 values (day10_line_sq.nextval, '46');
+insert into day10_example2 values (day10_line_sq.nextval, '20');
+insert into day10_example2 values (day10_line_sq.nextval, '48');
+insert into day10_example2 values (day10_line_sq.nextval, '47');
+insert into day10_example2 values (day10_line_sq.nextval, '24');
+insert into day10_example2 values (day10_line_sq.nextval, '23');
+insert into day10_example2 values (day10_line_sq.nextval, '49');
+insert into day10_example2 values (day10_line_sq.nextval, '45');
+insert into day10_example2 values (day10_line_sq.nextval, '19');
+insert into day10_example2 values (day10_line_sq.nextval, '38');
+insert into day10_example2 values (day10_line_sq.nextval, '39');
+insert into day10_example2 values (day10_line_sq.nextval, '11');
+insert into day10_example2 values (day10_line_sq.nextval, '1');
+insert into day10_example2 values (day10_line_sq.nextval, '32');
+insert into day10_example2 values (day10_line_sq.nextval, '25');
+insert into day10_example2 values (day10_line_sq.nextval, '35');
+insert into day10_example2 values (day10_line_sq.nextval, '8');
+insert into day10_example2 values (day10_line_sq.nextval, '17');
+insert into day10_example2 values (day10_line_sq.nextval, '7');
+insert into day10_example2 values (day10_line_sq.nextval, '9');
+insert into day10_example2 values (day10_line_sq.nextval, '4');
+insert into day10_example2 values (day10_line_sq.nextval, '2');
+insert into day10_example2 values (day10_line_sq.nextval, '34');
+insert into day10_example2 values (day10_line_sq.nextval, '10');
+insert into day10_example2 values (day10_line_sq.nextval, '3');
+
+insert into day10_example2 select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_example2;
+-- add 0 source
+insert into day10_example2 values (0,'0');
+commit;
+------------------------- end insert example 2 -----------------------
+
+select * from day10_example2 order by lineno;
+
+create or replace view day10_exp2_joltage as
+select lineno, to_number(xline) joltage from day10_example2;
+
+select * from day10_exp2_joltage;
+
+create or replace view day10_exp2_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_exp2_joltage order by joltage) d;
+
+select * from day10_exp2_joltage_ordered order by joltage_order;
+
+
+select joltage
+  , lag(joltage,1,0) over (order by joltage) lag1 
+  , lag(joltage,2,0) over (order by joltage) lag2
+  , lag(joltage,3,0) over (order by joltage) lag3
+  , lag(joltage,1,0) over (order by joltage) lag1 
+  , lag(joltage,2,0) over (order by joltage) lag2
+  , lag(joltage,3,0) over (order by joltage) lag3
+from day10_exp2_joltage_ordered;
+
+create or replace view day10_view2 as
+select 
+    joltage_order
+  , joltage
+  , lag(joltage,1) over (order by joltage) lag1 
+  , lag(joltage,2) over (order by joltage) lag2
+  , lag(joltage,3) over (order by joltage) lag3
+  , joltage-lag(joltage,1) over (order by joltage) diff1 
+  , joltage-lag(joltage,2) over (order by joltage) diff2
+  , joltage-lag(joltage,3) over (order by joltage) diff3
+from day10_exp2_joltage_ordered;
+select * from day10_view2;
+
+
+create or replace view day10_view3 as
+select joltage_order
+    , case when joltage-lag(joltage,1) over (order by joltage) between 1 and 3 then 1 end lag1
+    , case when joltage-lag(joltage,2) over (order by joltage) between 1 and 3 then 2 end lag2
+    , case when joltage-lag(joltage,3) over (order by joltage) between 1 and 3 then 3 end lag3
+from day10_view2; 
+
+select joltage_order,lag1,lag2,lag3
+  , lag(joltage_order, lag1) over (order by joltage_order)
+  , decode(joltage_order,1,1,'-1') a 
+from day10_view3;
+
+select joltage_order, lag1, lag2, lag3, 1 pc from day10_view3
+start with joltage_order = 1  connect by joltage_order = prior joltage_order + 1;
+
+select joltage
+  , case when
+      joltage-lag(joltage,1) over (order by joltage) between 1 and 3
+        then lag(joltage,1) over (order by joltage)
+      end lag1 
+  , case when
+      joltage-lag(joltage,2) over (order by joltage) between 1 and 3
+        then lag(joltage,2) over (order by joltage)
+      end lag2
+  , case when
+      joltage-lag(joltage,3) over (order by joltage) between 1 and 3
+        then lag(joltage,3) over (order by joltage)
+      end lag3
+--  , lag(joltage,1) over (order by joltage) lag1 
+--  , lag(joltage,2) over (order by joltage) lag2
+--  , lag(joltage,3) over (order by joltage) lag3
+--  , joltage-lag(joltage,1) over (order by joltage) diff1 
+--  , joltage-lag(joltage,2) over (order by joltage) diff2
+--  , joltage-lag(joltage,3) over (order by joltage) diff3
+from day10_exp2_joltage_ordered;
+
+create or replace view day10_exp2_jolt_lag as
+select joltage
+  , case when
+      joltage-lag(joltage,1) over (order by joltage) between 1 and 3
+        then lag(joltage,1) over (order by joltage)
+      end lag1 
+  , case when
+      joltage-lag(joltage,2) over (order by joltage) between 1 and 3
+        then lag(joltage,2) over (order by joltage)
+      end lag2
+  , case when
+      joltage-lag(joltage,3) over (order by joltage) between 1 and 3
+        then lag(joltage,3) over (order by joltage)
+      end lag3
+--  , lag(joltage,1) over (order by joltage) lag1 
+--  , lag(joltage,2) over (order by joltage) lag2
+--  , lag(joltage,3) over (order by joltage) lag3
+--  , joltage-lag(joltage,1) over (order by joltage) diff1 
+--  , joltage-lag(joltage,2) over (order by joltage) diff2
+--  , joltage-lag(joltage,3) over (order by joltage) diff3
+from day10_exp2_joltage_ordered;
+
+select joltage, lag1, lag2, lag3, lag(joltage,lag1) over (order by joltage) a  from day10_exp2_jolt_lag;
+
+create or replace view day10_exp2_jolt_lag as
+select joltage
+  , case when
+      joltage-lag(joltage,1) over (order by joltage) between 1 and 3
+        then joltage-lag(joltage,1) over (order by joltage)
+      end lag1 
+  , case when
+      joltage-lag(joltage,2) over (order by joltage) between 1 and 3
+        then joltage-lag(joltage,2) over (order by joltage)
+      end lag2
+  , case when
+      joltage-lag(joltage,3) over (order by joltage) between 1 and 3
+        then joltage-lag(joltage,3) over (order by joltage)
+      end lag3
+--  , lag(joltage,1) over (order by joltage) lag1 
+--  , lag(joltage,2) over (order by joltage) lag2
+--  , lag(joltage,3) over (order by joltage) lag3
+--  , joltage-lag(joltage,1) over (order by joltage) diff1 
+--  , joltage-lag(joltage,2) over (order by joltage) diff2
+--  , joltage-lag(joltage,3) over (order by joltage) diff3
+from day10_exp2_joltage_ordered;
+select * from day10_exp2_jolt_lag;
+
+select joltage
+  , case
+      when joltage-lag(joltage,1) over (order by joltage) = 1 then 1
+      when joltage-lag(joltage,1) over (order by joltage) = 1 then 1
+      when joltage-lag(joltage,1) over (order by joltage) = 1 then 1
+    end lag1 
+  , case
+      when joltage-lag(joltage,2) over (order by joltage) = 2 then 2
+      when joltage-lag(joltage,3) over (order by joltage) = 2 then 2
+    end lag2
+  , case
+      when joltage-lag(joltage,3) over (order by joltage) = 3 then 3
+    end lag3
+--  , lag(joltage,1) over (order by joltage) lag1 
+--  , lag(joltage,2) over (order by joltage) lag2
+--  , lag(joltage,3) over (order by joltage) lag3
+--  , joltage-lag(joltage,1) over (order by joltage) diff1 
+--  , joltage-lag(joltage,2) over (order by joltage) diff2
+--  , joltage-lag(joltage,3) over (order by joltage) diff3
+from day10_exp2_joltage_ordered;
+
+
+
+select * from day10_exp2_joltage;
+
+select a.joltage j1,b.joltage j2, b.joltage - a.joltage diff
+from (select * from day10_exp2_joltage) a
+    ,(select * from day10_exp2_joltage) b
+where a.joltage < b.joltage
+  and b.joltage - a.joltage between 1 and 3
+order by a.joltage,b.joltage;
+
+-- no
+select j1, count(*) from (
+select a.joltage j1,b.joltage j2, b.joltage - a.joltage diff
+from (select * from day10_exp2_joltage) a
+    ,(select * from day10_exp2_joltage) b
+where a.joltage < b.joltage
+  and b.joltage - a.joltage between 1 and 3
+)
+group by j1
+/
+
+create or replace view a1 as
+select b.joltage j1,a.joltage j2 --, b.joltage - a.joltage diff
+from (select * from day10_exp2_joltage) a
+    ,(select * from day10_exp2_joltage) b
+where a.joltage < b.joltage
+  and b.joltage - a.joltage between 1 and 3
+order by b.joltage,a.joltage;
+
+select j1,j2, count(*) over (partition by j1 order by j2) j1_order from a1;
+
+drop procedure z1;
+create or replace procedure z1 as
+  TYPE aa IS TABLE OF number INDEX BY BINARY_INTEGER;
+  z1 aa;
+begin
+  z1(0) := 1;
+  for i in (select j1,j2, count(*) over (partition by j1 order by j2) j1_order from a1) loop
+    if i.j1_order = 1 then
+      z1(i.j1):=z1(i.j2);
+    else 
+      z1(i.j1):=z1(i.j1)+z1(i.j2);
+    end if;
+    dbms_output.put_line(i.j1||','||i.j2||'='||z1(i.j1));
+  end loop;
+end;
+/
+exec z1;
+
+
+
+
+
+
+
+
