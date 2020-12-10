@@ -1,0 +1,71 @@
+-- count all the ways to connect from 0 to your device, with or without using all of the cords.
+-- I think I have a solution but I need to verify with the simpler examples.
+
+------------------------- initial insert example 2 -----------------------
+-- example 1
+drop table day10_example2;
+drop sequence day10_line_sq;
+create table day10_example2 (lineno number, xline varchar2(4000));
+create sequence day10_line_sq;
+
+insert into day10_example2 values (day10_line_sq.nextval, '28');
+insert into day10_example2 values (day10_line_sq.nextval, '33');
+insert into day10_example2 values (day10_line_sq.nextval, '18');
+insert into day10_example2 values (day10_line_sq.nextval, '42');
+insert into day10_example2 values (day10_line_sq.nextval, '31');
+insert into day10_example2 values (day10_line_sq.nextval, '14');
+insert into day10_example2 values (day10_line_sq.nextval, '46');
+insert into day10_example2 values (day10_line_sq.nextval, '20');
+insert into day10_example2 values (day10_line_sq.nextval, '48');
+insert into day10_example2 values (day10_line_sq.nextval, '47');
+insert into day10_example2 values (day10_line_sq.nextval, '24');
+insert into day10_example2 values (day10_line_sq.nextval, '23');
+insert into day10_example2 values (day10_line_sq.nextval, '49');
+insert into day10_example2 values (day10_line_sq.nextval, '45');
+insert into day10_example2 values (day10_line_sq.nextval, '19');
+insert into day10_example2 values (day10_line_sq.nextval, '38');
+insert into day10_example2 values (day10_line_sq.nextval, '39');
+insert into day10_example2 values (day10_line_sq.nextval, '11');
+insert into day10_example2 values (day10_line_sq.nextval, '1');
+insert into day10_example2 values (day10_line_sq.nextval, '32');
+insert into day10_example2 values (day10_line_sq.nextval, '25');
+insert into day10_example2 values (day10_line_sq.nextval, '35');
+insert into day10_example2 values (day10_line_sq.nextval, '8');
+insert into day10_example2 values (day10_line_sq.nextval, '17');
+insert into day10_example2 values (day10_line_sq.nextval, '7');
+insert into day10_example2 values (day10_line_sq.nextval, '9');
+insert into day10_example2 values (day10_line_sq.nextval, '4');
+insert into day10_example2 values (day10_line_sq.nextval, '2');
+insert into day10_example2 values (day10_line_sq.nextval, '34');
+insert into day10_example2 values (day10_line_sq.nextval, '10');
+insert into day10_example2 values (day10_line_sq.nextval, '3');
+
+insert into day10_example2 select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_example2;
+-- add 0 source
+insert into day10_example2 values (0,'0');
+commit;
+------------------------- end insert example 2 -----------------------
+
+select * from day10_example2 order by lineno;
+
+create or replace view day10_exp2_joltage as
+select lineno, to_number(xline) joltage from day10_example2;
+
+select * from day10_exp2_joltage;
+
+create or replace view day10_exp2_joltage_ordered as
+select rownum joltage_order, d.* from (select * from day10_exp2_joltage order by joltage) d;
+
+select * from day10_exp2_joltage_ordered order by joltage_order;
+
+
+create or replace view day10_exp2_adapter_paths as
+  select level lvl, joltage, SYS_CONNECT_BY_PATH(joltage,':') path
+  from day10_exp2_joltage_ordered
+  start with joltage=0 connect by joltage between (prior joltage+1) and (prior joltage+3)
+/
+select max(joltage) from day10_exp2_joltage_ordered;
+--52
+select count(*) from day10_exp2_adapter_paths where joltage = 52;
+-- 19208 rows, as expected.
+
