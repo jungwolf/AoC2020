@@ -1,0 +1,75 @@
+drop table day11_example;
+drop sequence day11_line_sq;
+create table day11_example (lineno number, xline varchar2(4000));
+create sequence day11_line_sq;
+
+/*
+insert into day11_example values (day11_line_sq.nextval, '.L');
+insert into day11_example values (day11_line_sq.nextval, '##');
+insert into day11_example values (day11_line_sq.nextval, '##');
+*/
+insert into day11_example values (day11_line_sq.nextval, 'L.LL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'LLLLLLL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.L.L..L..');
+insert into day11_example values (day11_line_sq.nextval, 'LLLL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLL.LL');
+insert into day11_example values (day11_line_sq.nextval, '..L.L.....');
+insert into day11_example values (day11_line_sq.nextval, 'LLLLLLLLLL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLLL.L');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLL.LL');
+
+commit;
+
+create or replace view day11_seats as
+with t (x,y,seat, xline, lvl)
+  as (          select lineno x, 1 y, substr(xline,1,1) , xline, 1 lvl from day11_example
+      union all select x, y+1, substr(xline,y+1,1), xline, lvl+1 from t
+                where substr(xline,y+1,1) is not null
+  )
+select x,y,seat,xline
+from t
+;
+
+create or replace view day11_adj_seats as
+select
+  x,y,seat,xline
+  ,(select substr('.'||xline,y,3) from day11_example where lineno = x-1) prerow
+  ,(select substr('.'||xline,y,1) from day11_example where lineno = x) myrowl
+  ,(select substr('.'||xline,y+2,1) from day11_example where lineno = x) myrowr
+  ,(select substr('.'||xline,y,3) from day11_example where lineno = x+1) postrow
+  ,(select substr('.'||xline,y,3) from day11_example where lineno = x-1) 
+  ||(select substr('.'||xline,y,1) from day11_example where lineno = x) 
+  ||(select substr('.'||xline,y+2,1) from day11_example where lineno = x) 
+  ||(select substr('.'||xline,y,3) from day11_example where lineno = x+1) adj_seats
+from day11_seats
+order by x,y;
+
+select lineno, xline from day11_example;
+select x,y,seat from day11_seats;
+select * from day11_adj_seats;
+
+create or replace view day11_next_seats as
+select x,y,seat,adj_seats,regexp_count(adj_seats,'#') full_seats
+  , case
+      when seat = '.' then '.'
+      when regexp_count(adj_seats,'#') < 4 then '#'
+      when regexp_count(adj_seats,'#') >= 4then 'L'
+    end next_seat
+from day11_adj_seats;
+select * from day11_next_seats;
+select x, listagg(next_seat) within group (order by y)
+from day11_next_seats
+group by x;
+/*
+1	#.##.##.##
+2	#######.##
+3	#.#.#..#..
+4	####.##.##
+5	#.##.##.##
+6	#.#####.##
+7	..#.#.....
+8	##########
+9	#.######.#
+10	#.#####.##
+*/

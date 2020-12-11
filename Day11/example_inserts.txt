@@ -1,0 +1,16 @@
+drop table day11_example;
+drop sequence day11_line_sq;
+create table day11_example (lineno number, xline varchar2(4000));
+create sequence day11_line_sq;
+
+insert into day11_example values (day11_line_sq.nextval, 'L.LL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'LLLLLLL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.L.L..L..');
+insert into day11_example values (day11_line_sq.nextval, 'LLLL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LL.LL.LL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLL.LL');
+insert into day11_example values (day11_line_sq.nextval, '..L.L.....');
+insert into day11_example values (day11_line_sq.nextval, 'LLLLLLLLLL');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLLL.L');
+insert into day11_example values (day11_line_sq.nextval, 'L.LLLLL.LL');
+commit;

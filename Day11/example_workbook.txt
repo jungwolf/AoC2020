@@ -1,0 +1,171 @@
+/*
+L.LL.LL.LL
+LLLLLLL.LL
+L.L.L..L..
+LLLL.LL.LL
+L.LL.LL.LL
+L.LLLLL.LL
+..L.L.....
+LLLLLLLLLL
+L.LLLLLL.L
+L.LLLLL.LL
+
+. = floor
+L = empty seat
+# = full seat
+
+The next state for the board is determined from the previous state.
+floor doesn't change
+seats change based on the state of the other seats around it.
+L -> # if all seats around it are also L
+# -> L if 4 or more seats around it are #
+Otherwise stays the same, # -> # if 1-3 are #
+
+Or, based on the full seats (#) around it
+. -> .
+0 -> #
+1-3 -> #
+4-8 -> L
+*/
+
+/*
+first try counting in general
+L
+L
+-- should give 2, 2
+*/
+drop table day11_example;
+drop sequence day11_line_sq;
+create table day11_example (lineno number, xline varchar2(4000));
+create sequence day11_line_sq;
+
+insert into day11_example values (day11_line_sq.nextval, 'L');
+insert into day11_example values (day11_line_sq.nextval, 'L');
+commit;
+
+select lineno, xline from day11_example;
+select lineno
+  , lag(xline,1) over (order by xline) 
+  , lead(xline,1) over (order by xline) 
+from day11_example;
+
+drop table day11_example;
+drop sequence day11_line_sq;
+create table day11_example (lineno number, xline varchar2(4000));
+create sequence day11_line_sq;
+
+insert into day11_example values (day11_line_sq.nextval, 'LL');
+insert into day11_example values (day11_line_sq.nextval, 'L#');
+insert into day11_example values (day11_line_sq.nextval, 'L#');
+commit;
+select lineno, xline from day11_example;
+select lineno
+  , lag(xline,1) over (order by xline) lpast
+  , xline lnow
+  , lead(xline,1) over (order by xline) lnext 
+  , lag(xline,1) over (order by xline) 
+  || xline 
+  || lead(xline,1) over (order by xline) lall
+from day11_example;
+
+
+
+
+drop table day11_seats;
+create table day11_seats (x number, y number, seat varchar2(1));
+
+insert into day11_seats values (1,1,'L');
+insert into day11_seats values (1,2,'#');
+insert into day11_seats values (2,1,'L');
+insert into day11_seats values (2,2,'L');
+insert into day11_seats values (3,1,'L');
+insert into day11_seats values (3,2,'#');
+commit;
+
+-- how about making two tables?
+create table day11_rows as
+select x
+  , listagg(seat) within group (order by y) the_row
+from day11_seats
+group by x;
+
+select * from day11_seats;
+select * from day11_rows;
+
+-- so wrong, but let's make a view out of it
+create or replace view local_l as
+select s.x,s.y,s.seat
+  ,substr(lag(r.the_row,1) over (order by s.x),s.y,3) row_past
+  ,substr(the_row,s.y-1,1) my_row_l
+  ,substr(the_row,s.y+1,1) my_row_r
+  ,substr(lead(r.the_row,1) over (order by s.x),s.y,3) row_next
+  ,substr(lag(r.the_row,1) over (order by s.x),s.y,3)
+  ||substr(the_row,s.y-1,1) 
+  ||substr(the_row,s.y+1,1) 
+  ||substr(lead(r.the_row,1) over (order by s.x),s.y,3) my_row
+  ,regexp_count(substr(lag(r.the_row,1) over (order by s.x),s.y,3)
+  ||substr(the_row,s.y-1,1) 
+  ||substr(the_row,s.y+1,1) 
+  ||substr(lead(r.the_row,1) over (order by s.x),s.y,3)
+  ,'#') my_ls
+from day11_seats s, day11_rows r;
+
+
+create or replace view local_l as
+select s.x,s.y,s.seat
+  ,substr(lag(r.the_row,1) over (order by s.x),s.y,3) row_past
+  ,substr(the_row,s.y-1,1) my_row_l
+  ,substr(the_row,s.y+1,1) my_row_r
+  ,substr(lead(r.the_row,1) over (order by s.x),s.y,3) row_next
+  ,substr(lag(r.the_row,1) over (order by s.x),s.y,3)
+  ||substr(the_row,s.y-1,1) 
+  ||substr(the_row,s.y+1,1) 
+  ||substr(lead(r.the_row,1) over (order by s.x),s.y,3) my_row
+  ,regexp_count(substr(lag(r.the_row,1) over (order by s.x),s.y,3)
+  ||substr(the_row,s.y-1,1) 
+  ||substr(the_row,s.y+1,1) 
+  ||substr(lead(r.the_row,1) over (order by s.x),s.y,3)
+  ,'#') my_ls
+from day11_seats s, day11_rows r
+where s.x = r.x;
+
+select * from day11_rows;
+select * from local_l;
+select x,y, seat
+  , decode(seat,'.','.',to_char(my_ls))
+from local_l; 
+select x,y, seat
+  , case
+      when seat = '.' then '.'
+      when my_ls < 4 then '#'
+      when my_ls >= 4 then 'L'
+    end next_seat
+from local_l; 
+
+select * from day11_rows;
+select x, listagg(next_seat) within group (order by y) the_row
+from (
+select x,y, seat
+  , case
+      when seat = '.' then '.'
+      when my_ls < 4 then '#'
+      when my_ls >= 4 then 'L'
+    end next_seat
+from local_l
+)
+group by x
+; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
