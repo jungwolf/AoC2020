@@ -1,0 +1,58 @@
+-- assume input is in table day09_data as (line number in text file), (raw text string)
+--   fields (lineno, xline)
+
+-- add my device
+insert into day10_data select max(lineno)+1, to_char(max(to_number(xline))+3) from day10_data;
+-- add 0 source
+insert into day10_data values (0,'0');
+commit;
+
+-- for this problem we only need the list of joltages
+create or replace view day10_data_joltage_only as
+select to_number(xline) joltage from day10_data;
+
+-- verify output is correct, specifically source and my device
+-- select * from day10_data_joltage_only order by joltage;
+
+-- for any 1 joltage, find what joltages it can reach
+-- j1 is the source, j2(s) are the targets
+create or replace view day10_joltage_diff as
+select b.joltage j1,a.joltage j2
+from (select * from day10_data_joltage_only) a  -- yes, another self-join
+    ,(select * from day10_data_joltage_only) b
+where a.joltage < b.joltage
+  and b.joltage - a.joltage between 1 and 3     -- a source joltage can only reach another joltage 1 to 3 smaller
+/
+
+-- do the work
+create or replace procedure day10_find_combinations as
+  TYPE number_table
+    IS TABLE OF number 
+    INDEX BY BINARY_INTEGER;      -- create table type
+  jolt_combos number_table;       -- a temp (in memory) table
+begin
+  -- initialize table entries to 0
+  for i in (select joltage from day10_data_joltage_only) loop
+    jolt_combos(i.joltage) := 0;
+  end loop;
+  
+  -- 0, by itself, is 1 combination
+  jolt_combos(0) := 1;
+  
+  for i in (
+    -- do this in order because later rows can reference earlier rows
+    select j1,j2
+    from day10_joltage_diff
+    order by j1
+  ) loop
+    -- the number of combinations for a joltage is the
+    --   sum of all the combination of each joltage it can reach
+    jolt_combos(i.j1):=jolt_combos(i.j1)+jolt_combos(i.j2);
+  end loop;
+  -- print the number of combinations available to the last joltage, my device
+  dbms_output.put_line(jolt_combos(jolt_combos.last));
+end;
+/
+exec day10_find_combinations;
+-- check dbms_output
+--84627647627264
