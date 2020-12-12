@@ -1,0 +1,24 @@
+readme.txt -- readme text for github directory
+
+part1_problem.txt -- text of part 1 problem
+part1_input.txt -- data supplied by AoC
+part1_inserts.txt -- file created by instructions in AoC_create_table_insert_data.txt
+
+example_inserts.txt -- put example data setup here, usually given in part 1 problem text
+example_workbook.txt -- record notes as working through the problem; create more as necessary
+example_solution.txt -- clean solution
+
+part1_workbook.txt -- notes as working through problem; more as needed
+part1_solution.txt -- clean solution
+
+part2_problem.txt -- text of part 2 problem
+part2_workbook.txt -- notes as working through problem; more as needed
+part2_solution.txt -- clean solution
+
+-- others as needed -- examples:
+example2* -- sometimes a problem shows two example sets
+part2_input.txt -- extra data from part 2
+part2_inserts.txt -- file created by instructions in AoC_create_table_insert_data.txt
+notes.txt -- general notes as working through problems
+alt_idea.txt -- sometimes it helps to pull out a more complex experiment into its own file
+create*.txt -- sometimes it makes sense to pull out the creation of a function or procedure or other

@@ -1,0 +1,14 @@
+-- replace NNN with day number
+drop table dayNNN_data;
+drop sequence dayNNN_line_sq;
+create table dayNNN_data (lineno number, xline varchar2(4000));
+create sequence dayNNN_line_sq;
+
+--- use the following to run a macro on the input.txt 
+insert into dayNNN_data values (dayNNN_line_sq.nextval, '
+');
+-- when done, add this to end
+commit;
+
+-- copy input.txt here
+
