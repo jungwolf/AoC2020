@@ -23,10 +23,9 @@ connect by regexp_substr(str,'[^,]+',1,level) is not null
  3 defoifcd
  4 87765
 
--- an example --
+-- an example -- 
 with t as (select 'abcd' as str from dual)
 select level as n, substr(str,level,1) as val
 from   t
-connect by substr(str,1,level) is not null
-
-
+connect by substr(str,level,1) is not null
+/

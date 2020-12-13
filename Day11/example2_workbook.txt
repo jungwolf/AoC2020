@@ -6,4 +6,9 @@
 
 -- small dataset
 select * from day11_s_data;
+/*
+1	L##
+2	L##
+3	L.L
+*/
 
