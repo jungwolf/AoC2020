@@ -1,9 +1,11 @@
 -- run part1_inserts.txt
 
 create or replace view day11_board as 
-select 0 lineno, '............' the_row from dual
+select 0 lineno, rpad('.',length(xline)+2,'.') the_row from day11_data where rownum = 1
 union all select lineno, '.'||xline||'.' from day11_data
-union all select max(lineno)+1,'............' from day11_data; 
+union all select max(lineno)+1,max(rpad('.',length(xline)+2,'.')) from day11_data; 
+
+select * from day11_board;
 
 create or replace function next_life(pre_row varchar2, the_row varchar2, post_row varchar2) return varchar2 as
   midday varchar2(9);
