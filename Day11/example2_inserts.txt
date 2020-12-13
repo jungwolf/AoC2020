@@ -1,0 +1,12 @@
+drop table day11_s_data;
+create table day11_s_data (lineno number, xline varchar2(4000));
+drop sequence day11_line_sq;
+create sequence day11_line_sq;
+
+insert into day11_s_data values (day11_line_sq.nextval, 'L##');
+insert into day11_s_data values (day11_line_sq.nextval, 'L##');
+insert into day11_s_data values (day11_line_sq.nextval, 'L.L');
+commit;
+
+
+

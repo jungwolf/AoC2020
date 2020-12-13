@@ -1,0 +1,9 @@
+-- overview
+-- split input into x,y,seated -> no seat = null, empty = 0, full = 1
+-- probably need to use x*length+y
+-- precompute who can see what 
+-- recurse!
+
+-- small dataset
+select * from day11_s_data;
+
