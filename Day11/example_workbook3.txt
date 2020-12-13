@@ -214,3 +214,9 @@ order by lvl,lineno
 9	".LLLLLLLLLL."	".L.LLLLLL.L."	".L.LLLLL.LL."	10
 10	".L.LLLLLL.L."	".L.LLLLL.LL."	"............"	10
 10	".L.LLLLL.LL."	"............"	""	10
+
+create or replace function next_life(pre_row varchar2, the_row varchar2, post_row varchar2) return varchar2
+begin
+  return 'a';
+end;
+/
