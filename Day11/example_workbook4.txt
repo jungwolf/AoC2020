@@ -1,0 +1,209 @@
+-- run example_inserts.txt
+
+create or replace view day11_ex_board as 
+select 0 lineno, '............' the_row from dual
+union all select lineno, '.'||xline||'.' from day11_example
+union all select max(lineno)+1,'............' from day11_example; 
+
+create or replace function next_life(pre_row varchar2, the_row varchar2, post_row varchar2) return varchar2 as
+  midday varchar2(9);
+  filled_seats number;
+  my_seat varchar2(1);
+begin
+  my_seat := substr(the_row,2,1);
+  midday:=pre_row||the_row||post_row;
+  
+  if my_seat ='.' then
+    return '.';
+  else
+    midday:=substr(midday,1,4)||substr(midday,6,4);
+    midday:=translate(midday,'L','.');
+  end if;
+  filled_seats:=regexp_count(midday,'#');
+  if my_seat = 'L' and filled_seats = 0 then
+    return '#';
+  elsif my_seat='#' and filled_seats >= 4 then
+    return 'L';
+  else
+    return my_seat;
+  end if;
+end;
+/
+select next_life('.LL','.LL','L..') from dual;
+
+create or replace function next_life_row (pre_row varchar2, the_row varchar2, post_row varchar2) return varchar2 as
+  next_line varchar2(4000);
+begin
+  next_line:='.';
+  for i in 1..length(the_row)-2 loop
+    next_line:=next_line||next_life(substr(pre_row,i,3),substr(the_row,i,3),substr(post_row,i,3));
+  end loop;
+  next_line:=next_line||'.';
+  return next_line;
+end;
+/
+
+select next_life_row('.LL','.LL','L..') from dual;
+--select next_life_row('.L.LL.LL.LL.','.LLLLLLL.LL.','.L.L.L..L...') from dual;
+
+select * from day11_ex_board;
+select lineno
+  , next_life_row(
+     lag(the_row,1) over (order by lineno)
+    ,the_row
+    ,lead(the_row,1) over (order by lineno)
+  )
+from day11_ex_board;  
+
+
+with t (lineno, lvl, a_from, a_to,line_hash) as (
+  select lineno, 1 lvl, the_row
+    , next_life_row(
+        lag(the_row,1) over (order by lineno)
+        ,the_row
+        ,lead(the_row,1) over (order by lineno)
+      )
+     ,ora_hash(the_row||lineno)
+  from day11_ex_board
+  union all
+  select lineno, lvl+1, a_to
+    , next_life_row(
+        lag(a_to,1) over (order by lineno)
+        ,a_to
+        ,lead(a_to,1) over (order by lineno)
+    )
+    ,ora_hash(a_to||lineno)
+  from t
+  where lvl < 10
+  )
+select * from t
+order by lvl,lineno;
+
+--group up the hashes, use them to stop the cycle
+
+
+-- looking good
+with t (lineno, lvl, a_from, a_to,line_hash, cycle_hash) as (
+  select lineno, 1 lvl, the_row
+    , next_life_row(
+        lag(the_row,1) over (order by lineno)
+        ,the_row
+        ,lead(the_row,1) over (order by lineno)
+      )
+     ,ora_hash(the_row||lineno)
+     ,sum(ora_hash(the_row||lineno)) over (order by lineno)
+--    , 1 cycle_hash
+  from day11_ex_board
+  union all
+  select lineno, lvl+1, a_to
+    , next_life_row(
+        lag(a_to,1) over (order by lineno)
+        ,a_to
+        ,lead(a_to,1) over (order by lineno)
+    )
+    ,ora_hash(a_to||lineno)
+    ,sum(ora_hash(a_to||lineno)) over (partition by lvl order by 1 range between unbounded preceding and unbounded following) cycle_hash
+--  ,1
+  from t
+  where lvl < 10
+  )
+  cycle lineno,cycle_hash set is_cycle to 1 default 0
+select * from t
+order by lvl,lineno;
+
+
+
+with t (lineno, lvl, a_from, a_to,line_hash, cycle_hash) as (
+  select lineno, 1 lvl, the_row
+    , next_life_row(
+        lag(the_row,1) over (order by lineno)
+        ,the_row
+        ,lead(the_row,1) over (order by lineno)
+      )
+     ,ora_hash(the_row||lineno)
+     ,sum(ora_hash(the_row||lineno)) over (order by lineno)
+--    , 1 cycle_hash
+  from day11_ex_board
+  union all
+  select lineno, lvl+1, a_to
+    , next_life_row(
+        lag(a_to,1) over (order by lineno)
+        ,a_to
+        ,lead(a_to,1) over (order by lineno)
+    )
+    ,ora_hash(a_to||lineno)
+    ,sum(ora_hash(a_to||lineno)) over (partition by lvl order by 1 range between unbounded preceding and unbounded following) cycle_hash
+--  ,1
+  from t
+  where lvl < 10
+  )
+  cycle lineno,cycle_hash set is_cycle to 1 default 0
+select * from t
+order by lvl,lineno;
+
+-- just the last one
+select lineno, a_to from (
+with t (lineno, lvl, a_from, a_to,line_hash, cycle_hash) as (
+  select lineno, 1 lvl, the_row
+    , next_life_row(
+        lag(the_row,1) over (order by lineno)
+        ,the_row
+        ,lead(the_row,1) over (order by lineno)
+      )
+     ,ora_hash(the_row||lineno)
+     ,sum(ora_hash(the_row||lineno)) over (order by lineno)
+--    , 1 cycle_hash
+  from day11_ex_board
+  union all
+  select lineno, lvl+1, a_to
+    , next_life_row(
+        lag(a_to,1) over (order by lineno)
+        ,a_to
+        ,lead(a_to,1) over (order by lineno)
+    )
+    ,ora_hash(a_to||lineno)
+    ,sum(ora_hash(a_to||lineno)) over (partition by lvl order by 1 range between unbounded preceding and unbounded following) cycle_hash
+--  ,1
+  from t
+  where lvl < 10
+  )
+  cycle lineno,cycle_hash set is_cycle to 1 default 0
+select * from t
+)
+where is_cycle = 1
+order by lineno;
+
+
+select sum(regexp_count(a_to,'#')) from (
+select lineno, a_to from (
+with t (lineno, lvl, a_from, a_to,line_hash, cycle_hash) as (
+  select lineno, 1 lvl, the_row
+    , next_life_row(
+        lag(the_row,1) over (order by lineno)
+        ,the_row
+        ,lead(the_row,1) over (order by lineno)
+      )
+     ,ora_hash(the_row||lineno)
+     ,sum(ora_hash(the_row||lineno)) over (order by lineno)
+--    , 1 cycle_hash
+  from day11_ex_board
+  union all
+  select lineno, lvl+1, a_to
+    , next_life_row(
+        lag(a_to,1) over (order by lineno)
+        ,a_to
+        ,lead(a_to,1) over (order by lineno)
+    )
+    ,ora_hash(a_to||lineno)
+    ,sum(ora_hash(a_to||lineno)) over (partition by lvl order by 1 range between unbounded preceding and unbounded following) cycle_hash
+--  ,1
+  from t
+  where lvl < 10
+  )
+  cycle lineno,cycle_hash set is_cycle to 1 default 0
+select * from t
+)
+where is_cycle = 1
+order by lineno
+)
+;

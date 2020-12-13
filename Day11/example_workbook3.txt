@@ -11,7 +11,7 @@ FROM hr.employees;
 create or replace view day11_ex_board as 
 select 0 lineno, '............' the_row from dual
 union all select lineno, '.'||xline||'.' from day11_example
-union all select max(lineno),'............' from day11_example; 
+union all select max(lineno)+1,'............' from day11_example; 
 
 select * from day11_ex_board ;
 
