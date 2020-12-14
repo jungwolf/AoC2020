@@ -1,3 +1,53 @@
+create or replace function find_next_board_id(currentid number, stepx number, stepy number) return number as
+-- returns next seat id as long as it is still on the board
+-- otherwise null
+  currentx number;
+  currenty number;
+  currentrowlength number;
+  nextx number;
+  nexty number;
+  nextid number;
+begin
+  select x,y,row_length into currentx,currenty,currentrowlength from day11_xy where id=currentid;
+  nextx := currentx+stepx;
+  nexty := currenty+stepy;
+
+  -- return null ('.') if off the board
+  -- ug, assume board is square, so currentrowlength
+  if nexty < 1 or nexty > currentrowlength then
+    return null;
+  end if;
+  if nextx < 1 or nextx > currentrowlength then
+    return null;
+  end if;
+
+  return nexty+(nextx-1)*currentrowlength;
+--  return 1;
+end;
+/
+
+select id, x, y, seat, row_length, y+(x-1)*row_length id1,trunc((id-1)/row_length)+1 x1, mod(id-1,row_length)+1 y1
+  ,find_next_board_id(id,-1,-1) "x-y-"
+  ,find_next_board_id(id,-1, 0) "x-y0"
+  ,find_next_board_id(id,-1,+1) "x-y+"
+  ,find_next_board_id(id, 0,-1) "x0y-"
+  ,find_next_board_id(id, 0, 0) "x0y0"
+  ,find_next_board_id(id, 0,+1) "x0y+"
+  ,find_next_board_id(id,+1,-1) "x1y-"
+  ,find_next_board_id(id,+1, 0) "x1y0"
+  ,find_next_board_id(id,+1,+1) "x1y1"
+from day11_xy;
+
+/* x across, y down
+0 1 2 3
+1 1 4 7
+2 2 5 8
+3 3 6 9
+*/
+
+
+
+
 create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
 --  id_jump number;
   i number;
