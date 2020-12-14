@@ -1,0 +1,9 @@
+select * from day11_xy;
+
+-- creating a lookup table, so don't feel constrained by lag etc
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number) return number as
+begin
+  null;
+end;
+/
+

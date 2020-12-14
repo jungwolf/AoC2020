@@ -36,11 +36,131 @@ with t (id, y, x, seat, leftover, row_length) as (
 select id,x,y,seat,row_length from t
 ;
 
-select * from day11_xy;
 
 
-create or replace function find_first_seat_location(currentid number, stepx number, stepy number) return number as
+
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+  id_jump number;
+  i number;
+  currentx number;
+  currenty number;
+  nextx number;
+  nexty number;
 begin
-  null;
+  select x,y into currentx,currenty from day11_xy where id=currentid;
+  i:=1;
+  nextx := currentx+stepx*i;
+  nexty := currenty+stepy*i;
+  
+  -- y past end of table is okay, returns null anyway
+  if nexty < 1 then
+    return null;
+  end if;
+  if nextx < 1 or nextx > row_length then
+    return null;
+  end if;
+
+  id_jump:=stepy*i+(stepx)*row_length*i;
+  return currentid+id_jump;
 end;
 /
+
+--create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+select id, y, x, seat, row_length, y+(x-1)*row_length, find_first_seat_location(id,+1,0,row_length) "where"
+  , 1
+from day11_xy;
+/* x across, y down
+0 1 2 3
+1 1 4 7
+2 2 5 8
+3 3 6 9
+*/
+
+
+
+
+
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+  id_jump number;
+  i number;
+  currentx number;
+  currenty number;
+  nextx number;
+  nexty number;
+  nextseat number
+begin
+  select x,y into currentx,currenty from day11_xy where id=currentid;
+  i:=1;
+  nextx := currentx+stepx*i;
+  nexty := currenty+stepy*i;
+  
+  -- y past end of table is okay, returns null anyway
+  if nexty < 1 then
+    return null;
+  end if;
+  if nextx < 1 or nextx > row_length then
+    return null;
+  end if;
+
+  return currentid+id_jump;
+end;
+/
+
+--create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+select id, y, x, seat, row_length, y+(x-1)*row_length, find_first_seat_location(id,+1,0,row_length) "where"
+  , 1
+from day11_xy;
+/* x across, y down
+0 1 2 3
+1 1 4 7
+2 2 5 8
+3 3 6 9
+*/
+
+
+
+
+
+
+----
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+  id_jump number;
+  i number;
+  currentx number;
+  currenty number;
+  nextx number;
+  nexty number;
+  nextseat number
+begin
+  select x,y into currentx,currenty from day11_xy where id=currentid;
+  i:=1;
+  nextx := currentx+stepx*i;
+  nexty := currenty+stepy*i;
+  
+  -- y past end of table is okay, returns null anyway
+  if nexty < 1 then
+    return null;
+  end if;
+  if nextx < 1 or nextx > row_length then
+    return null;
+  end if;
+
+  id_jump:=stepy*i+(stepx)*row_length*i;
+  select seat into nextseat from from day11_xy where id=currentid+id_jump;
+  if nextseat in ('.') then
+    null
+  end if;
+  return nextseat;
+end;
+/
+
+--create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
+select id, y, x, seat, row_length, y+(x-1)*row_length, find_first_seat_location(id,+1,0,row_length) "where"
+  , 1
+from day11_xy;
+/* x across, y down
+0 1 2 3
+1 1 4 7
+2 2 5 8
+3 3 6 9
+*/
