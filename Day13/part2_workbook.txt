@@ -1,0 +1,272 @@
+-- part2 example
+-- each bus departs at 0 and makes stops every id minutes
+-- 7,13,x,x,59,x,31,19
+-- string order determines the offset for the problem, 0 based
+-- 7,13,x,x,59,x,31,19
+-- 0 1  2 3 4  5 6  7
+-- find time where 7 departs at t, 13 departs at t+1, then 59 at time t+4, etc
+-- backwards...7 mod t = 13 mod t +1 = 59 mod t +4 = 32 mod t +6 = 19 mod t + 7
+/*
+0 = t mod 7  + 0
+  = t mod 13 - 1
+  = t mod 59 - 4 
+  = t mod 31 - 6
+  = t mod 19 - 7
+*/
+-- work out period for arbitrary pair 
+given cycle1, cycle2, and offset, what is the smallest i where i*cycle
+
+define
+  i number;
+begin
+  i := -1;
+loop
+  i := i + 1;
+  if trunc(i/7) != 0 then
+    CONTINUE;
+  elsif mod(i,13) != 1 then
+    CONTINUE;
+  end if;
+  return i;
+end;
+/
+
+create or replace find_cycle return number as
+  i number;
+begin
+  i := -1;
+loop
+  i := i + 1;
+  if trunc(i/7) != 0 then
+    CONTINUE;
+  elsif mod(i,13) != 1 then
+    CONTINUE;
+  end if;
+  return i;
+end;
+/
+-- something wrong with this
+create or replace find_cycle return number as
+  i number;
+begin
+  i := -1;
+loop
+  i := i + 1;
+  if mod(i,7) != 0 then
+    CONTINUE;
+  elsif mod(i,13) != 1 then
+    CONTINUE;
+  end if;
+  return i;
+end;
+/
+-- maybe this? haven't tried
+create or replace function find_cycle(a number, b number, offset number) return number as
+  i number;
+begin
+  i := -1;
+loop
+  i := i + 1;
+  dbms_output.put_line(i||','||trunc(i/a)||'!=0,'||mod(i,b)||'!='||offset);
+  dbms_lock.sleep(1);
+  if mod(i,a) != 0 then
+    CONTINUE;
+  elsif mod(i,b) != offset then
+    CONTINUE;
+  end if;
+end loop;
+  return i;
+end;
+/
+select find_cycle from dual;
+
+
+
+select lvl, bus7, bus13 from (
+select level lvl, mod(level,7) bus7, mod(level,13) bus13 from dual
+connect by level < 7*130
+)
+where bus7 = 0 and bus13 = 1;
+14	0	1
+105	0	1 - 91 = 13*7
+196	0	1 - 91
+287	0	1
+378	0	1
+469	0	1
+560	0	1
+651	0	1
+742	0	1
+833	0	1
+
+
+/*
+0 = t mod 7  + 0
+  = t mod 13 - 1
+  = t mod 59 - 4 
+  = t mod 31 - 6
+  = t mod 19 - 7
+*/
+
+select lvl, bus7, bus59 from (
+select level lvl, mod(level,7) bus7, mod(level,59) bus59 from dual
+connect by level < 7*590
+)
+where bus7 = 0 and bus59 = 4;
+/*
+63	0	4
+476	0	4 - 413 = 7*59
+889	0	4
+1302	0	4
+1715	0	4
+2128	0	4
+2541	0	4
+2954	0	4
+3367	0	4
+3780	0	4
+*/
+
+
+select lvl, bus1, bus2 from (
+select level*59 lvl, mod(level*59,7) bus7, mod(level*59,59) bus59 from dual
+connect by level < 7*590
+)
+where bus7 = 0 and bus59 = 4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------- notes
+select 
+  939 tm
+  ,7 id
+  , trunc(939/7) bus_stop_pre
+  , ceil(939/7) bus_stop_next
+  , ceil(939/7)*7-939 steps_to_go
+from dual;
+-- looks good
+
+create table day13_exp_busses (bus_id number);
+insert into day13_exp_busses values (7);
+insert into day13_exp_busses values (13);
+insert into day13_exp_busses values (59);
+insert into day13_exp_busses values (31);
+insert into day13_exp_busses values (19);
+commit;
+
+
+with t as
+(select 
+  939 tm
+  , bus_id
+  , trunc(939/bus_id) bus_stop_pre
+  , ceil(939/bus_id) bus_stop_next
+  , ceil(939/bus_id)*bus_id-939 steps_to_go
+from day13_exp_busses
+)
+select bus_id, steps_to_go, bus_id*steps_to_go 
+from t t1
+  , (select min(steps_to_go) min_steps from t) t2
+where t1.steps_to_go = t2.min_steps;
+
+
+
+
+
+select lvl, bus7, bus13 from (
+select level lvl, mod(level,7) bus7, mod(level,13) bus13 from dual
+connect by level <= 2*7*13
+)
+where bus7 = 0 and bus13 = 1;
+
+
+
+
+
+
+
+
+
+
+
+select 1000066 from dual;
+create table day13_busses (bus_id number);
+insert into day13_busses values (13);
+insert into day13_busses values (41);
+insert into day13_busses values (37);
+insert into day13_busses values (659);
+insert into day13_busses values (19);
+insert into day13_busses values (23);
+insert into day13_busses values (29);
+insert into day13_busses values (409);
+insert into day13_busses values (17);
+commit;
+
+with t as
+(select 
+  1000066 tm
+  , bus_id
+  , trunc(1000066/bus_id) bus_stop_pre
+  , ceil(1000066/bus_id) bus_stop_next
+  , ceil(1000066/bus_id)*bus_id-1000066 steps_to_go
+from day13_busses
+)
+select bus_id, steps_to_go, bus_id*steps_to_go 
+from t t1
+  , (select min(steps_to_go) min_steps from t) t2
+where t1.steps_to_go = t2.min_steps;
+
+
+
+/*
+0 = t mod 7  + 0
+  = t mod 13 - 1
+  = t mod 59 - 4 
+  = t mod 31 - 6
+  = t mod 19 - 7
+*/
+select lvl, bus1, bus2 from (
+select level lvl, mod(level,7) bus1, mod(level,13) bus2 from dual
+connect by level < 7*590
+)
+where bus1 = 0 and bus2 = 1;
+--14	0	1
+--105	0	1
+
+select lvl, bus1, bus2 from (
+select level lvl, mod(level,7) bus1, mod(level,59) bus2 from dual
+connect by level < 7*590
+)
+where bus1 = 0 and bus2 = 4;
+--63	0	4
+--476	0	4
+
+select lvl, bus1, bus2 from (
+select level lvl, mod(level,7) bus1, mod(level,31) bus2 from dual
+connect by level < 7*590
+)
+where bus1 = 0 and bus2 = 6;
+--161	0	6
+--378	0	6
+
+select lvl, bus1, bus2 from (
+select level lvl, mod(level,7) bus1, mod(level,19) bus2 from dual
+connect by level < 7*590
+)
+where bus1 = 0 and bus2 = 7;
+--7	0	7
+--140	0	7
+
+select lvl, bus1, bus2 from (
+select level lvl, mod(level,7) bus1, mod(level,19) bus2 from dual
+connect by level < 7*590
+)
+where bus1 = 0 and bus2 = 7;

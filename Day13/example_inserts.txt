@@ -1,0 +1,9 @@
+drop table day13_example;
+drop sequence day13_line_sq;
+create table day13_example (lineno number, xline varchar2(4000));
+create sequence day13_line_sq;
+
+
+insert into day13_example values (day13_line_sq.nextval, '939');
+insert into day13_example values (day13_line_sq.nextval, '7,13,x,x,59,x,31,19');
+commit;

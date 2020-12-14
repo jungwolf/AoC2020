@@ -1,0 +1,18 @@
+-- not really solved
+-- create view for timestamp
+-- create view to create rows from tokenized input
+
+with t as
+(select 
+  939 tm
+  , bus_id
+  , trunc(939/bus_id) bus_stop_pre
+  , ceil(939/bus_id) bus_stop_next
+  , ceil(939/bus_id)*bus_id-939 steps_to_go
+from day13_exp_busses
+)
+select bus_id, steps_to_go, bus_id*steps_to_go 
+from t t1
+  , (select min(steps_to_go) min_steps from t) t2
+where t1.steps_to_go = t2.min_steps;
+

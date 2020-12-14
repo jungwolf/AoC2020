@@ -1,0 +1,36 @@
+/*
+insert into day13_data values (day13_line_sq.nextval, '1000066');
+insert into day13_data values (day13_line_sq.nextval, '13,x,x,41,x,x,x,37,x,x,x,x,x,659,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,19,x,x,x,23,x,x,x,x,x,29,x,409,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,17');
+*/
+
+select 1000066 from dual;
+
+create table day13_busses (bus_id number);
+insert into day13_busses values (13);
+insert into day13_busses values (41);
+insert into day13_busses values (37);
+insert into day13_busses values (659);
+insert into day13_busses values (19);
+insert into day13_busses values (23);
+insert into day13_busses values (29);
+insert into day13_busses values (409);
+insert into day13_busses values (17);
+commit;
+
+-- tired of parsing, just fake it for now
+
+with t as
+(select 
+  1000066 tm
+  , bus_id
+  , trunc(1000066/bus_id) bus_stop_pre
+  , ceil(1000066/bus_id) bus_stop_next
+  , ceil(1000066/bus_id)*bus_id-1000066 steps_to_go
+from day13_busses
+)
+select bus_id, steps_to_go, bus_id*steps_to_go 
+from t t1
+  , (select min(steps_to_go) min_steps from t) t2
+where t1.steps_to_go = t2.min_steps;
+--41	6	246
+

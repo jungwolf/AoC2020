@@ -1,0 +1,44 @@
+insert into day13_example values (day13_line_sq.nextval, '939');
+insert into day13_example values (day13_line_sq.nextval, '7,13,x,x,59,x,31,19');
+
+create table day13_exp_busses (bus_id);
+insert into day13_exp_busses values (7);
+insert into day13_exp_busses values (13);
+insert into day13_exp_busses values (59);
+insert into day13_exp_busses values (31);
+insert into day13_exp_busses values (19);
+commit;
+
+select 
+  939 tm
+  ,7 id
+  , trunc(939/7) bus_stop_pre
+  , ceil(939/7) bus_stop_next
+  , ceil(939/7)*7-939 steps_to_go
+from dual;
+-- looks good
+
+-- let's assume I can make rows out of the token input
+create table day13_exp_busses (bus_id number);
+insert into day13_exp_busses values (7);
+insert into day13_exp_busses values (13);
+insert into day13_exp_busses values (59);
+insert into day13_exp_busses values (31);
+insert into day13_exp_busses values (19);
+commit;
+
+
+with t as
+(select 
+  939 tm
+  , bus_id
+  , trunc(939/bus_id) bus_stop_pre
+  , ceil(939/bus_id) bus_stop_next
+  , ceil(939/bus_id)*bus_id-939 steps_to_go
+from day13_exp_busses
+)
+select bus_id, steps_to_go, bus_id*steps_to_go 
+from t t1
+  , (select min(steps_to_go) min_steps from t) t2
+where t1.steps_to_go = t2.min_steps;
+
