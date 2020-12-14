@@ -12,7 +12,7 @@ select * from day11_s_data;
 3	L.L
 */
 
-create view day11_xy as
+create or replace view day11_xy as
 with t (y, x, seat, leftover, row_length) as (
   select
     lineno 
@@ -33,6 +33,7 @@ with t (y, x, seat, leftover, row_length) as (
   from t
   where x < row_length
 )
-select x,y,seat,leftover from t
-order by y,x;
+select x,y,seat,row_length from t
+;
 
+select * from day11_xy;
