@@ -12,3 +12,26 @@ select * from day11_s_data;
 3	L.L
 */
 
+with t (y, x, seat, leftover, row_length) as (
+  select
+    lineno 
+    , 1 
+--    ,substr(xline,1,1)
+    , decode( substr(xline,1,1), 'L',0,'#',1,'.',null)
+    , substr(xline,2)
+    ,length(xline)
+  from day11_s_data
+  union all
+  select 
+    y
+    , x+1
+--    ,substr(leftover,1,1)
+    , decode( substr(leftover,1,1), 'L',0,'#',1,'.',null)
+    , substr(leftover,2)
+    , row_length
+  from t
+  where x < row_length
+)
+select x,y,seat,leftover from t
+order by y,x;
+
