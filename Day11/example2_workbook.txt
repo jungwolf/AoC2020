@@ -13,27 +13,28 @@ select * from day11_s_data;
 */
 
 create or replace view day11_xy as
-with t (y, x, seat, leftover, row_length) as (
+with t (id, y, x, seat, leftover, row_length) as (
   select
-    lineno 
-    , 1 
---    ,substr(xline,1,1)
-    , decode( substr(xline,1,1), 'L',0,'#',1,'.',null)
-    , substr(xline,2)
-    ,length(xline)
+    lineno id
+    , lineno y
+    , 1 x
+    , decode( substr(xline,1,1), 'L',0,'#',1,'.',null) seat
+    , substr(xline,2) leftover
+    ,length(xline) row_length
   from day11_s_data
   union all
   select 
-    y
-    , x+1
---    ,substr(leftover,1,1)
-    , decode( substr(leftover,1,1), 'L',0,'#',1,'.',null)
-    , substr(leftover,2)
-    , row_length
+    x*row_length + y id
+    , y y
+    , x+1 x
+    , decode( substr(leftover,1,1), 'L',0,'#',1,'.',null) seat
+    , substr(leftover,2) leftover
+    , row_length row_length
   from t
   where x < row_length
 )
-select x,y,seat,row_length from t
+select id,x,y,seat,row_length from t
 ;
 
 select * from day11_xy;
+
