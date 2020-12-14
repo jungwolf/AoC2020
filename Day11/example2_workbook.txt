@@ -12,6 +12,7 @@ select * from day11_s_data;
 3	L.L
 */
 
+create view day11_xy as
 with t (y, x, seat, leftover, row_length) as (
   select
     lineno 
