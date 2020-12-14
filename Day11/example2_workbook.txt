@@ -38,3 +38,9 @@ select id,x,y,seat,row_length from t
 
 select * from day11_xy;
 
+
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number) return number as
+begin
+  null;
+end;
+/
