@@ -46,7 +46,7 @@ from day11_xy;
 */
 
 
-
+-----------------------------------
 
 create or replace function find_first_seat_location(currentid number, stepx number, stepy number, row_length number) return number as
 --  id_jump number;
@@ -116,3 +116,62 @@ from day11_xy;
 select id, y, x, seat, row_length, y+(x-1)*row_length, find_first_seat_location(id,+1,0,row_length) "where"
   , 1
 from day11_xy;
+
+-----------------------------------
+create or replace function find_first_seat_location(currentid number, stepx number, stepy number) return number as
+--  id_jump number;
+  currentx number;
+  currenty number;
+  nextx number;
+  nexty number;
+  nextseat number;
+  nextid number;
+begin
+  -- what are my current x,y
+  select x,y into currentx,currenty from day11_xy where id=currentid;
+  nextid := find_next_board_id(currentid,stepx,stepy);
+  if nextid is null then
+    return null;
+  else
+    select x,y,seat into nextx,nexty,nextseat from day11_xy where id=nextid;
+    if nextseat is not null then
+      return nextid;
+    else
+      return find_first_seat_location(nextid,stepx,stepy);
+    end if;
+  end if;
+end;
+/
+select id, x, y, seat, row_length, y+(x-1)*row_length id1,trunc((id-1)/row_length)+1 x1, mod(id-1,row_length)+1 y1
+  ,find_next_board_id(id,-1,-1) "x-y-"
+  ,find_next_board_id(id,-1, 0) "x-y0"
+  ,find_next_board_id(id,-1,+1) "x-y+"
+  ,find_next_board_id(id, 0,-1) "x0y-"
+  ,find_next_board_id(id, 0, 0) "x0y0"
+  ,find_next_board_id(id, 0,+1) "x0y+"
+  ,find_next_board_id(id,+1,-1) "x1y-"
+  ,find_next_board_id(id,+1, 0) "x1y0"
+  ,find_next_board_id(id,+1,+1) "x1y1"
+  ,find_first_seat_location(id,-1,0) "nextseatx-y0"
+  ,find_first_seat_location(id,+1,0) "nextseatx+y0"
+from day11_xy;
+
+/* x across, y down
+0 1 2 3
+1 1 4 7
+2 2 5 8
+3 3 6 9
+*/
+/* x across, y down, seat value
+0 1 2 3
+1 0 1 1
+2 0 1 1
+3 0 n 0
+*/
+/* x across, y down, seat value
+0 1 2 3
+1 L # #
+2 L # #
+3 L . L
+*/
+
