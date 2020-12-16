@@ -119,3 +119,53 @@ select * from day15_ex1_game order by lineno ;
 commit;
 -- fixed last_spoken/new_spoken
 
+
+
+
+create or replace procedure last_spoken_number(max_spoken number, s1 number, s2 number, s3 number) is
+  last_lineno number;
+  new_spoken number;
+begin
+
+--init
+execute immediate 'truncate table day15_ex1_game';
+insert into day15_ex1_game values (1,s1);
+insert into day15_ex1_game values (2,s2);
+insert into day15_ex1_game values (3,s3);
+commit;
+-- get the starting numbers
+  select lineno, spoken into last_lineno, new_spoken from day15_ex1_game order by lineno desc fetch first 1 rows only; 
+--dbms_output.put_line(last_lineno||' last_spoken='||new_spoken);
+
+  -- i is the new lineno
+  for i in last_lineno+1 .. max_spoken loop
+    select max(lineno) into last_lineno from day15_ex1_game where spoken=new_spoken and lineno < i-1;
+--dbms_output.put_line(i||' last_lineno='||last_lineno);
+
+    -- last_spoken is null if doesn't exist yet
+    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+--dbms_output.put_line(i||' new_spoken='||new_spoken);
+    insert into day15_ex1_game (lineno, spoken) values (i, new_spoken );
+  end loop;
+end;
+/
+exec last_spoken_number(10,0,3,6);
+select * from day15_ex1_game order by lineno ;
+exec last_spoken_number(2020,0,3,6);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+--2020	436, correct
+exec last_spoken_number(2020,1,3,2);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+exec last_spoken_number(2020,2,1,3);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+exec last_spoken_number(2020,1,2,3);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+exec last_spoken_number(2020,2,3,1);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+exec last_spoken_number(2020,3,2,1);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+exec last_spoken_number(2020,3,1,2);
+select * from day15_ex1_game order by lineno desc fetch first 10 rows only;
+
+
+-- works!
