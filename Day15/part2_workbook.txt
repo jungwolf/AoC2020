@@ -41,3 +41,70 @@ select * from day15_game order by lineno desc fetch first 1 rows only;
 
 
 -- well, didn't work.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- trying update instead of insert; need to get dbms_output working correctly.
+-- worst debugging ever
+--Given your starting numbers, what will be the 30000000th number spoken?
+create or replace procedure last_spoken_number(max_spoken number) is
+  last_lineno number;
+  new_spoken number;
+begin
+
+--init
+-- get the starting numbers
+  select lineno, spoken into last_lineno, new_spoken from day15_game order by lineno desc fetch first 1 rows only; 
+--dbms_output.put_line(last_lineno||' last_spoken='||new_spoken);
+
+  -- i is the new lineno
+  for i in last_lineno+1 .. max_spoken loop
+    select /*+ index(g) */ max(lineno) into last_lineno from day15_game g where spoken=new_spoken and lineno < i-1;
+--dbms_output.put_line(i||' last_lineno='||last_lineno);
+
+    -- last_spoken is null if doesn't exist yet
+--    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+--dbms_output.put_line(i||' new_spoken='||new_spoken);
+--    insert into day15_game (lineno, spoken) values (i, new_spoken );
+dbms_output.put_line(i||' new_spoken='||new_spoken||' last_lineno='||nvl(last_lineno,-1));
+    if last_lineno is null then
+      insert into day15_game values (i, new_spoken);
+    else
+      update day15_game set lineno = i-1-last_lineno where spoken = new_spoken;
+    end if;
+    commit;
+dbms_session.sleep(1);
+  end loop;
+end;
+/
+
+--Given your starting numbers, what will be the 30000000th (30,000,000) number spoken?
+truncate table day15_game;
+insert into day15_game values (1,1);
+insert into day15_game values (2,0);
+insert into day15_game values (3,15);
+insert into day15_game values (4,2);
+insert into day15_game values (5,10);
+insert into day15_game values (6,13);
+commit;
+
+drop index day15_game_idx;
+create index day15_game_idx on day15_game(spoken, lineno);
+--exec last_spoken_number(30000000);
+exec last_spoken_number(2020);
+select * from day15_game order by lineno desc fetch first 1 rows only;
+select * from day15_game order by lineno;
+
+
+
