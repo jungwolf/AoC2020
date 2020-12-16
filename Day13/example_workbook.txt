@@ -1,7 +1,7 @@
 insert into day13_example values (day13_line_sq.nextval, '939');
 insert into day13_example values (day13_line_sq.nextval, '7,13,x,x,59,x,31,19');
 
-create table day13_exp_busses (bus_id);
+create table day13_exp_busses (bus_id number);
 insert into day13_exp_busses values (7);
 insert into day13_exp_busses values (13);
 insert into day13_exp_busses values (59);

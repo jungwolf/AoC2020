@@ -270,3 +270,20 @@ select level lvl, mod(level,7) bus1, mod(level,19) bus2 from dual
 connect by level < 7*590
 )
 where bus1 = 0 and bus2 = 7;
+
+
+select
+    7
+  , 13*7
+  , 59*13*7
+  , 31*59*13*7
+  , 19*31*59*13*7
+from dual;
+--
+7
+91
+5369
+166439
+3162341
+
+
