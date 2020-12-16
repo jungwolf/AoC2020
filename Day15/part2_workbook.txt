@@ -42,15 +42,7 @@ select * from day15_game order by lineno desc fetch first 1 rows only;
 
 -- well, didn't work.
 
-
-
-
-
-
-
-
-
-
+-- didn't assign new value to new_spoken
 
 
 
@@ -63,22 +55,75 @@ create or replace procedure last_spoken_number(max_spoken number) is
   new_spoken number;
 begin
 
---init
 -- get the starting numbers
   select lineno, spoken into last_lineno, new_spoken from day15_game order by lineno desc fetch first 1 rows only; 
---dbms_output.put_line(last_lineno||' last_spoken='||new_spoken);
 
   -- i is the new lineno
   for i in last_lineno+1 .. max_spoken loop
     select /*+ index(g) */ max(lineno) into last_lineno from day15_game g where spoken=new_spoken and lineno < i-1;
---dbms_output.put_line(i||' last_lineno='||last_lineno);
 
     -- last_spoken is null if doesn't exist yet
---    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
---dbms_output.put_line(i||' new_spoken='||new_spoken);
---    insert into day15_game (lineno, spoken) values (i, new_spoken );
-dbms_output.put_line(i||' new_spoken='||new_spoken||' last_lineno='||nvl(last_lineno,-1));
-    if last_lineno is null then
+    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+
+    if new_spoken = 0 then
+      insert into day15_game values (i, new_spoken);
+    else
+      update day15_game set lineno = i-1-last_lineno where spoken = new_spoken;
+    end if;
+    commit;
+dbms_session.sleep(1);
+  end loop;
+end;
+/
+
+--Given your starting numbers, what will be the 30000000th (30,000,000) number spoken?
+truncate table day15_game;
+insert into day15_game values (1,1);
+insert into day15_game values (2,0);
+insert into day15_game values (3,15);
+insert into day15_game values (4,2);
+insert into day15_game values (5,10);
+insert into day15_game values (6,13);
+commit;
+
+drop index day15_game_idx;
+create index day15_game_idx on day15_game(spoken, lineno);
+--exec last_spoken_number(30000000);
+exec last_spoken_number(2020);
+select * from day15_game order by lineno desc fetch first 1 rows only;
+select * from day15_game order by lineno;
+
+
+
+----- closing in on it
+create or replace procedure last_spoken_number(max_spoken number) is
+  last_lineno number;
+  prev_lineno number;
+  new_spoken number;
+  last_spoken number;
+begin
+
+
+  -- i is the new lineno
+  for i in last_lineno+1 .. max_spoken loop
+    -- get the last numbers, shouldn't have to do this but brute forcing for now
+    select lineno, spoken into last_lineno, last_spoken from day15_game order by lineno desc fetch first 1 rows only; 
+
+    -- has the previous number been said before?
+    select  max(lineno) into prev_lineno from day15_game g where spoken=last_spoken and lineno < last_lineno;
+
+    -- prev_lineno is null if doesn't exist yet
+    if prev_lineno in null then
+      -- if it doesn't exist yet, say 0, which means update 0 to last_lineno + 1
+      update day15_game set lineno = last_lineno+1 where spoken = 0;
+    else
+      -- it has been spoken before, insert or update the age of the spoken number
+      insert into day15_game values (last_lineno+1, new_spoken);
+    
+    
+    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+    
+    if new_spoken = 0 then
       insert into day15_game values (i, new_spoken);
     else
       update day15_game set lineno = i-1-last_lineno where spoken = new_spoken;
