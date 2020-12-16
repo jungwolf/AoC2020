@@ -75,5 +75,47 @@ dbms_output.put_line(i||' '||last_lineno);
 end;
 /
 select * from day15_ex1_game order by lineno ;
-rollback;
+
+/*
+expected output
+1 0
+2 3
+3 6
+4 0
+5 3
+6 3
+7 1
+8 0
+9 4
+10 0
+*/
+
+declare
+  max_spoken number := 10;
+  last_lineno number;
+  new_spoken number;
+begin
+
+execute immediate 'truncate table day15_ex1_game';
+--init
+insert into day15_ex1_game select lineno, to_number(xline) from day15_example;
+  -- get the starting numbers
+  select lineno, spoken into last_lineno, new_spoken from day15_ex1_game order by lineno desc fetch first 1 rows only; 
+dbms_output.put_line(last_lineno||' last_spoken='||new_spoken);
+
+  -- i is the new lineno
+  for i in last_lineno+1 .. max_spoken loop
+    select max(lineno) into last_lineno from day15_ex1_game where spoken=new_spoken and lineno < i-1;
+dbms_output.put_line(i||' last_lineno='||last_lineno);
+
+    -- last_spoken is null if doesn't exist yet
+    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+dbms_output.put_line(i||' new_spoken='||new_spoken);
+    insert into day15_ex1_game (lineno, spoken) values (i, new_spoken );
+  end loop;
+end;
+/
+select * from day15_ex1_game order by lineno ;
+commit;
+-- fixed last_spoken/new_spoken
 
