@@ -1,0 +1,35 @@
+drop table day15_game;
+create table day15_game (lineno number, spoken number);
+
+create or replace procedure last_spoken_number(max_spoken number) is
+  last_lineno number;
+  new_spoken number;
+begin
+
+-- get the starting numbers
+  select lineno, spoken into last_lineno, new_spoken from day15_game order by lineno desc fetch first 1 rows only; 
+
+  -- i is the new lineno
+  for i in last_lineno+1 .. max_spoken loop
+    select max(lineno) into last_lineno from day15_game where spoken=new_spoken and lineno < i-1;
+
+    -- last_lineno is null if new_spoken doesn't exist yet
+    select nvl2(last_lineno, i-1-last_lineno ,0) into new_spoken from dual;
+    insert into day15_game (lineno, spoken) values (i, new_spoken );
+  end loop;
+end;
+/
+
+--Your puzzle input is 1,0,15,2,10,13
+truncate table day15_game;
+insert into day15_game values (1,1);
+insert into day15_game values (2,0);
+insert into day15_game values (3,15);
+insert into day15_game values (4,2);
+insert into day15_game values (5,10);
+insert into day15_game values (6,13);
+commit;
+
+exec last_spoken_number(2020);
+select * from day15_game order by lineno desc fetch first 1 rows only;
+--2020	211
