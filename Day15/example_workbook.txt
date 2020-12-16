@@ -6,3 +6,17 @@ create sequence day15_line_sq;
 insert into day15_ex1_game select lineno, to_number(xline) from day15_example;
 commit;
 
+select * from day15_ex1_game;
+select spoken from day15_ex1_game order by lineno desc fetch first 1 rows only; 
+
+declare
+  last_spoken number;
+  a number;
+begin
+  select spoken into last_spoken from day15_ex1_game order by lineno desc fetch first 1 rows only; 
+  for i in 4 .. 2020 loop
+    a:= 1;
+  end loop;
+end;
+/
+

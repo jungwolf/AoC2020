@@ -3,8 +3,8 @@ drop sequence day15_line_sq;
 create table day15_example (lineno number, xline varchar2(4000));
 create sequence day15_line_sq;
 
-insert into day11_example values (day15_line_sq.nextval, '0');
-insert into day11_example values (day15_line_sq.nextval, '3');
-insert into day11_example values (day15_line_sq.nextval, '6');
+insert into day15_example values (day15_line_sq.nextval, '0');
+insert into day15_example values (day15_line_sq.nextval, '3');
+insert into day15_example values (day15_line_sq.nextval, '6');
 commit;
 
