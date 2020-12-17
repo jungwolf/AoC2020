@@ -1,0 +1,15 @@
+-- game of life with cubes
+-- consider the current state to determine the next state
+-- a cube has 26 neighbors, off-by-one in x,y,and/or z.
+-- if cube is active, 2 or 3 active neighbors -> active, otherwise -> inactive
+-- if cube is inactive, 3 active neighbors -> active, otherwise -> inactive
+
+-- I think, this time, only keep track of active cubes.
+-- for each active cube, add 1 to count of neighbors to all neighbor cubes
+-- once complete, sweep through all potential cubes and follow a+2/3n -> a, i+3a ->a, otherwise i
+/*
+current list of active cubes, active, full of points (x,y,z)
+generate list of potentially active cubes, potential, by looping through active and insert/update neighbors by +1
+generate new list of active cubes by looping through potential and following aliveness rules
+redo
+*/
