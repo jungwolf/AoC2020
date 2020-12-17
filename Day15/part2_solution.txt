@@ -1,0 +1,55 @@
+-- day15_game (lineno number, spoken number)
+create or replace procedure last_spoken_number(max_spoken number) is
+  last_lineno number;
+  prev_lineno number;
+  new_spoken number;
+  last_spoken number;
+  age number;
+begin
+
+  -- get the last numbers, shouldn't have to do this but brute forcing for now
+  select lineno, spoken into last_lineno, last_spoken from day15_game order by lineno desc fetch first 1 rows only; 
+
+  while last_lineno <= max_spoken loop
+
+    -- has the previous number been said before? max makes it null if the row doesn't exist, instead of an error
+    select  max(lineno) into prev_lineno from day15_game g where spoken=last_spoken;
+
+    -- prev_lineno is null if doesn't exist yet
+    if prev_lineno is null then
+      new_spoken:= 0;
+      select last_lineno-lineno into age from day15_game where spoken=0;
+      insert into day15_game values (last_lineno,last_spoken);
+    else
+      -- it has been spoken before, say the age
+      age:=last_lineno-prev_lineno;
+      new_spoken:= age;
+      update day15_game set lineno = last_lineno where spoken = last_spoken;
+    end if;
+    
+    commit;
+    last_lineno := last_lineno+1;
+    last_spoken:= new_spoken;
+
+  end loop;
+end;
+/
+
+--Given your starting numbers, what will be the 30000000th (30,000,000) number spoken?
+truncate table day15_game;
+insert into day15_game values (1,1);
+insert into day15_game values (2,0);
+insert into day15_game values (3,15);
+insert into day15_game values (4,2);
+insert into day15_game values (5,10);
+insert into day15_game values (6,13);
+commit;
+
+drop index day15_game_idx;
+create index day15_game_idx on day15_game(spoken, lineno);
+-- may need to put a hint in the pl/sql...
+exec dbms_stats.gather_table_stats('jungwolf','day15_game');
+exec last_spoken_number(30000000);
+select lineno, spoken, 30000000-lineno, round(lineno/30000000*100,2) prct from day15_game order by lineno desc fetch first 1 rows only;
+
+-- took 9779.51 seconds

@@ -220,3 +220,5 @@ select * from day15_game order by lineno;
 
 
 select * from dba_source where name = 'LAST_SPOKEN_NUMBER' order by line;
+
+-- took 9779.51 seconds
