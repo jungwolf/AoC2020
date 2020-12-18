@@ -13,3 +13,13 @@ generate list of potentially active cubes, potential, by looping through active 
 generate new list of active cubes by looping through potential and following aliveness rules
 redo
 */
+
+merge into potential p
+ Using (
+   Select c.x+inx.o, c.y+iny.o, c.z+iny.z
+   From cubes c, offset inx, offset iny, offset inx
+   Where inx.o != iny.o and inty.o != intz.o) z
+ On (p.x=z.x and p.y=z.y and p.z=z.z)
+ When matched then update set p.n=p.n+1
+ ..not.. then insert (x,y,z,n,active)
+     Values (z.x,z.y,z.z,0,false);
