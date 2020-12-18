@@ -6,7 +6,7 @@
 
 -- I think, this time, only keep track of active cubes.
 -- for each active cube, add 1 to count of neighbors to all neighbor cubes
--- once complete, sweep through all potential cubes and follow a+2/3n -> a, i+3a ->a, otherwise i
+-- once complete, sweep through all potential cubes and follow a+2|3n -> a, i+3a ->a, otherwise i
 /*
 current list of active cubes, active, full of points (x,y,z)
 generate list of potentially active cubes, potential, by looping through active and insert/update neighbors by +1
@@ -15,6 +15,28 @@ redo
 */
 -- cubes(x,y,z)
 -- potential (x,y,z,num,active)
+
+/*
+z=0 at first
+# -> active
+      x
+ |   -1  0 +1
+-+-----------
+y|-1  .  #  .
+ | 0  .  .  #
+ |+1  #  #  #
+*/
+-- only insert active cubes; existence -> active
+create table day17_cubes (x number, y number, z number);
+insert into day17_cubes values (-1, 1, 0);
+insert into day17_cubes values ( 0,-1, 0);
+insert into day17_cubes values ( 0, 1, 0);
+insert into day17_cubes values ( 1, 0, 0);
+insert into day17_cubes values ( 1, 1, 0);
+commit;
+
+
+
 
 merge into potential p
  Using (

@@ -1,0 +1,16 @@
+/*
+.#.
+..#
+###
+*/
+
+drop table day17_example;
+drop sequence day17_line_sq;
+create table day17_example (lineno number, xline varchar2(4000));
+create sequence day17_line_sq;
+
+insert into day17_example values (day17_line_sq.nextval, '.#.');
+insert into day17_example values (day17_line_sq.nextval, '..#');
+insert into day17_example values (day17_line_sq.nextval, '###');
+commit;
+
