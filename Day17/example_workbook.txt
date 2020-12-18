@@ -36,14 +36,44 @@ insert into day17_cubes values ( 1, 1, 0);
 commit;
 
 
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+create table offset (o number);
+insert into offset (1);
+insert into offset (0);
+insert into offset (-1);
+commit;
 
 
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+create table potential (x number, y number, z number, n number, active varchar2(1));
+
+
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into potential (x,y,z,n,active)
+select x,y,z,0,'T' from cubes;
+
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
 merge into potential p
- Using (
-   Select c.x+inx.o, c.y+iny.o, c.z+iny.z
-   From cubes c, offset inx, offset iny, offset inx
-   Where inx.o != iny.o and inty.o != intz.o) z
- On (p.x=z.x and p.y=z.y and p.z=z.z)
- When matched then update set p.n=p.n+1
- ..not.. then insert (x,y,z,n,active)
-     Values (z.x,z.y,z.z,0,false);
+ using (
+   select c.x+inx.o, c.y+iny.o, c.z+iny.z
+   from cubes c, offset inx, offset iny, offset inx -- consider all neighbors
+   where inx.o != iny.o and inty.o != intz.o        -- except itself
+ ) z
+ on (p.x=z.x and p.y=z.y and p.z=z.z)               -- does the point already exist?
+ when matched     then update set p.n=p.n+1         -- if yes update the neighbor count
+ when not matched then insert (x,y,z,n,active)      -- if not the create the point
+     Values (z.x,z.y,z.z,1,'F');
+
+-- create the next state
+-- truncate table cube;
+-- not yet, need original for troubleshooting
+create table day17_cubes2 (x number, y number, z number);
+insert into day17_cubes2
+select x,y,z from (
+  select x, y, z, sum(n), max(active) -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from potential
+  group by x,y,z
+where (active='T' and (n=2 or n=3)) or (active='N' and n=3)
+/
