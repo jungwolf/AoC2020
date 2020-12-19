@@ -77,3 +77,127 @@ select x,y,z from (
   group by x,y,z
 where (active='T' and (n=2 or n=3)) or (active='N' and n=3)
 /
+
+
+
+
+-- after fixing the syntax errors... it didn't produce the correct results. Surprise!
+-- what I ended up with, start debugging here
+-- I need a way to visualize the board
+
+-- get the mins
+select min(x), min(y), min(z) from day17_cubes;
+-- -1	-1	0
+-- loop over Z, group by y, print . or # by z
+select * from 
+  select listagg(x,' ') within gruop (order by x)
+  from  day17_cubes
+  group by z,y
+)
+order by z,y
+/
+  
+
+select y,listagg(yline) within group (order by x) from (
+with t as (
+  select min(x) minx from day17_cubes
+)
+select 
+--  minx,
+  x
+  ,y
+--  ,lpad('*',x-minx+1,'.')
+--  ,lag(x,1) over (partition by y order by x) 
+  ,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_cubes, t
+)
+group by y
+order by y;
+
+
+
+
+
+
+
+
+
+create table day17_cubes (x number, y number, z number);
+insert into day17_cubes values (-1, 1, 0);
+insert into day17_cubes values ( 0,-1, 0);
+insert into day17_cubes values ( 0, 1, 0);
+insert into day17_cubes values ( 1, 0, 0);
+insert into day17_cubes values ( 1, 1, 0);
+commit;
+select * from day17_cubes;
+
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+create table potential (x number, y number, z number, n number, active varchar2(1));
+
+
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into potential (x,y,z,n,active)
+select x,y,z,0,'T' from day17_cubes;
+select * from potential;
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
+merge into potential p
+ using (
+   select c.x+inx.o x, c.y+iny.o y, c.z+iny.o z
+   from day17_cubes c, offset inx, offset iny, offset inz -- consider all neighbors
+   where inx.o != iny.o and iny.o != inz.o        -- except itself
+ ) u
+ on (p.x=u.x and p.y=u.y and p.z=u.z)               -- does the point already exist?
+ when     matched then update set p.n=p.n+1         -- if yes update the neighbor count
+ when not matched then insert (x,y,z,n,active)      -- if not the create the point
+     values (u.x,u.y,u.z,1,'F');
+
+-- not working, error ORA-30926, -- the on clause needs to return unique rows, but I don't want unique...
+-- oh bother, I need to debug
+select c.x+inx.o x, c.y+iny.o y, c.z+iny.o z, count(*)
+   from day17_cubes c, offset inx, offset iny, offset inz -- consider all neighbors
+   where inx.o != iny.o and iny.o != inz.o 
+group by c.x+inx.o, c.y+iny.o, c.z+iny.o
+/
+-- oh! but this group by gives me the number of neigbors in one fell swoop
+-- new merge:
+merge into potential p
+ using (
+   select c.x+inx.o x, c.y+iny.o y, c.z+iny.o z, count(*) n
+   from day17_cubes c, offset inx, offset iny, offset inz -- consider all neighbors
+   where inx.o != iny.o and iny.o != inz.o        -- except itself
+   group by c.x+inx.o, c.y+iny.o, c.z+iny.o -- this counts up the neighbors!
+ ) u
+ on (p.x=u.x and p.y=u.y and p.z=u.z)               -- does the point already exist?
+ when     matched then update set p.n=u.n         -- if yes update the neighbor count
+ when not matched then insert (x,y,z,n,active)      -- if not the create the point
+     values (u.x,u.y,u.z,u.n,'F');
+commit;
+select * from potential;
+
+
+-- create the next state
+-- reuse old table
+-- truncate table day17_cubes;
+-- not yet, need original for troubleshooting
+create table day17_cubes2 (x number, y number, z number);
+insert into day17_cubes2
+select x,y,z from (
+  select x, y, z, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from potential
+  group by x,y,z
+)
+where (active='T' and (n=2 or n=3)) or (active='N' and n=3)
+/
+select * from day17_cubes2;
+
+
