@@ -1,0 +1,253 @@
+drop table day17_2d;
+create table day17_2d (x number, y number);
+insert into day17_2d values (-1, 1);
+insert into day17_2d values ( 0,-1);
+insert into day17_2d values ( 0, 1);
+insert into day17_2d values ( 1, 0);
+insert into day17_2d values ( 1, 1);
+commit;
+select * from day17_2d;
+
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+drop table offset;
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+create table pot_2d (x number, y number, n number, active varchar2(1));
+
+
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into pot_2d (x,y,n,active)
+select x,y,0,'T' from day17_2d;
+select * from pot_2d;
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
+select c.x+inx.o x, c.y+iny.o y
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where inx.o != iny.o
+order by z,y
+/
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t) group by y order by y;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from pot_2d, t) group by y order by y;
+
+
+
+-----------------------------
+drop table day17_2d;
+create table day17_2d (x number, y number);
+insert into day17_2d values ( 0, 0);
+commit;
+select * from day17_2d;
+
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+drop table offset;
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t) group by y order by y;
+
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+drop table pot_2d;
+create table pot_2d (x number, y number, n number, active varchar2(1));
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into pot_2d (x,y,n,active)
+select x,y,0,'T' from day17_2d;
+select * from pot_2d;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from pot_2d, t) group by y order by y;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_2d, t) group by y order by y;
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
+select c.x+inx.o x, c.y+iny.o y
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)
+order by y,x
+/
+
+
+
+
+
+
+
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_2d, t) group by y order by y;
+
+-----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+drop table day17_2d;
+create table day17_2d (x number, y number);
+--insert into day17_2d values ( 0, 0);
+insert into day17_2d values (-1, 1);
+insert into day17_2d values ( 0,-1);
+insert into day17_2d values ( 0, 1);
+insert into day17_2d values ( 1, 0);
+insert into day17_2d values ( 1, 1);
+commit;
+select * from day17_2d;
+
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+drop table offset;
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t) group by y order by y;
+
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+drop table pot_2d;
+create table pot_2d (x number, y number, n number, active varchar2(1));
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into pot_2d (x,y,n,active)
+select x,y,0,'T' from day17_2d;
+select * from pot_2d;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from pot_2d, t) group by y order by y;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_2d, t) group by y order by y;
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
+select c.x+inx.o x, c.y+iny.o y
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)
+order by y,x
+/
+
+select c.x+inx.o x, c.y+iny.o y, count(*)
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)
+group by c.x+inx.o, c.y+iny.o
+/
+
+merge into pot_2d p
+ using (
+   select c.x+inx.o x, c.y+iny.o y, count(*) n
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)        -- except itself
+   group by c.x+inx.o, c.y+iny.o -- this counts up the neighbors!
+ ) u
+ on (p.x=u.x and p.y=u.y)               -- does the point already exist?
+ when     matched then update set p.n=u.n         -- if yes update the neighbor count
+ when not matched then insert (x,y,n,active)      -- if not the create the point
+     values (u.x,u.y,u.n,'F');
+commit;
+select * from pot_2d;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_2d)
+select x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_2d, t) group by y order by y;
+
+/*
+drop table day17_2d2;
+create table day17_2d2 (x number, y number);
+insert into day17_2d2
+select x,y from (
+  select x, y, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from pot_2d
+  group by x,y
+)
+where n=3 or (active='T' and n=2)
+/
+select * from day17_2d2;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d2)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d2, t) group by y order by y;
+*/
+
+drop table day17_2d;
+create table day17_2d (x number, y number);
+insert into day17_2d
+select x,y from (
+  select x, y, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from pot_2d
+  group by x,y
+)
+where n=3 or (active='T' and n=2)
+/
+select * from day17_2d;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t) group by y order by y;
+
