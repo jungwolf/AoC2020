@@ -1,0 +1,136 @@
+drop table day17_3d;
+create table day17_3d (x number, y number, z number);
+--insert into day17_3d values ( 0, 0);
+insert into day17_3d values (-1, 1, 0);
+insert into day17_3d values ( 0,-1, 0);
+insert into day17_3d values ( 0, 1, 0);
+insert into day17_3d values ( 1, 0, 0);
+insert into day17_3d values ( 1, 1, 0);
+commit;
+select * from day17_3d;
+
+-- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+drop table offset;
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+select z,y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_3d)
+select z,x,y,lpad('*',nvl(x-lag(x,1) over (partition by z,y order by x),x-minx+1),'.') yline
+from day17_3d, t) group by z,y order by z,y;
+
+---- start from here for next step
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+drop table pot_3d;
+create table pot_3d (x number, y number, z number, n number, active varchar2(1));
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into pot_3d (x,y,z,n,active)
+select x,y,z,0,'T' from day17_3d;
+select * from pot_3d;
+
+select z,y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_3d)
+select z,x,y,lpad('*',nvl(x-lag(x,1) over (partition by z,y order by x),x-minx+1),'.') yline
+from pot_3d, t) group by z,y order by z,y;
+
+select z,y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_3d)
+select z,x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by z,y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_3d, t) group by z,y order by z,y;
+
+-- for each cube, for each neighbor cube, add 1 to its neighbor count. create the record if it doesn't exist yet.
+select c.x+inx.o x, c.y+iny.o y, c.z+inz.o
+   from day17_3d c, offset inx, offset iny, offset inz -- consider all neighbors
+   where not (inx.o=0 and iny.o=0 and inz.o=0)
+order by z,y,x
+/
+
+select c.x+inx.o x, c.y+iny.o y, c.z+inz.o z, count(*)
+   from day17_3d c, offset inx, offset iny, offset inz -- consider all neighbors
+   where not (inx.o=0 and iny.o=0 and inz.o=0)
+group by c.x+inx.o, c.y+iny.o, c.z+inz.o
+/
+
+merge into pot_3d p
+ using (
+   select c.x+inx.o x, c.y+iny.o y, c.z+inz.o z, count(*) n
+   from day17_3d c, offset inx, offset iny, offset inz -- consider all neighbors
+   where not (inx.o=0 and iny.o=0 and inz.o=0)        -- except itself
+   group by c.x+inx.o, c.y+iny.o, c.z+inz.o -- this counts up the neighbors!
+ ) u
+ on (p.x=u.x and p.y=u.y and p.z=u.z)               -- does the point already exist?
+ when     matched then update set p.n=u.n         -- if yes update the neighbor count
+ when not matched then insert (x,y,z,n,active)      -- if not the create the point
+     values (u.x,u.y,u.z,u.n,'F');
+commit;
+select * from pot_3d;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from pot_3d)
+select x,y, lpad( to_char(n)||active , nvl( 2*(x-lag(x,1) over (partition by y order by x)),2*(x-minx+1)) , '.' ) yline
+from pot_3d, t) group by y order by y;
+
+/*
+drop table day17_3d2;
+create table day17_3d2 (x number, y number);
+insert into day17_3d2
+select x,y from (
+  select x, y, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from pot_3d
+  group by x,y
+)
+where n=3 or (active='T' and n=2)
+/
+select * from day17_3d2;
+
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_3d2)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_3d2, t) group by y order by y;
+*/
+
+drop table day17_3d;
+create table day17_3d (x number, y number, z number);
+insert into day17_3d
+select x,y,z from (
+  select x, y, z, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from pot_3d
+  group by x,y,z
+)
+where n=3 or (active='T' and n=2)
+/
+select * from day17_3d;
+
+select z,y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_3d)
+select z,x,y,lpad('*',nvl(x-lag(x,1) over (partition by z,y order by x),x-minx+1),'.') yline
+from day17_3d, t) group by z,y order by z,y;
+
+/*
+-1	0	*
+-1	1	..*
+-1	2	.*
+0	0	*.*
+0	1	.**
+0	2	.*
+1	0	*
+1	1	..*
+1	2	.*
+
+-1	0	*..
+-1	1	..*
+-1	2	.*.
+
+0	0	*.*
+0	1	.**
+0	2	.*.
+
+1	0	*..
+1	1	..*
+1	2	.*.
+*/
