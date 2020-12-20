@@ -20,58 +20,58 @@ create table day17_part1_3d (x number, y number, z number);
 -- 12345678
 -- ###..#..
 insert into day17_part1_3d values (1, 1, 0);
-insert into day17_part1_3d values (1, 2, 0);
-insert into day17_part1_3d values (1, 3, 0);
-insert into day17_part1_3d values (1, 6, 0);
+insert into day17_part1_3d values (2, 1, 0);
+insert into day17_part1_3d values (3, 1, 0);
+insert into day17_part1_3d values (6, 1, 0);
 
 -- 12345678
 -- .#######
 insert into day17_part1_3d values (2, 2, 0);
-insert into day17_part1_3d values (2, 3, 0);
-insert into day17_part1_3d values (2, 4, 0);
-insert into day17_part1_3d values (2, 5, 0);
-insert into day17_part1_3d values (2, 6, 0);
-insert into day17_part1_3d values (2, 7, 0);
-insert into day17_part1_3d values (2, 8, 0);
+insert into day17_part1_3d values (3, 2, 0);
+insert into day17_part1_3d values (4, 2, 0);
+insert into day17_part1_3d values (5, 2, 0);
+insert into day17_part1_3d values (6, 2, 0);
+insert into day17_part1_3d values (7, 2, 0);
+insert into day17_part1_3d values (8, 2, 0);
 
 -- 12345678
 -- #####...
-insert into day17_part1_3d values (3, 1, 0);
-insert into day17_part1_3d values (3, 2, 0);
+insert into day17_part1_3d values (1, 3, 0);
+insert into day17_part1_3d values (2, 3, 0);
 insert into day17_part1_3d values (3, 3, 0);
-insert into day17_part1_3d values (3, 4, 0);
-insert into day17_part1_3d values (3, 5, 0);
+insert into day17_part1_3d values (4, 3, 0);
+insert into day17_part1_3d values (5, 3, 0);
 
 -- 12345678
 -- #..##.#.
-insert into day17_part1_3d values (4, 1, 0);
+insert into day17_part1_3d values (1, 4, 0);
 insert into day17_part1_3d values (4, 4, 0);
-insert into day17_part1_3d values (4, 5, 0);
-insert into day17_part1_3d values (4, 7, 0);
+insert into day17_part1_3d values (5, 4, 0);
+insert into day17_part1_3d values (7, 4, 0);
 
 -- 12345678
 -- ###..##.
-insert into day17_part1_3d values (5, 1, 0);
-insert into day17_part1_3d values (5, 2, 0);
-insert into day17_part1_3d values (5, 3, 0);
-insert into day17_part1_3d values (5, 6, 0);
-insert into day17_part1_3d values (5, 7, 0);
+insert into day17_part1_3d values (1, 5, 0);
+insert into day17_part1_3d values (2, 5, 0);
+insert into day17_part1_3d values (3, 5, 0);
+insert into day17_part1_3d values (6, 5, 0);
+insert into day17_part1_3d values (7, 5, 0);
 
 -- 12345678
 -- ##...#..
-insert into day17_part1_3d values (6, 1, 0);
-insert into day17_part1_3d values (6, 2, 0);
+insert into day17_part1_3d values (1, 6, 0);
+insert into day17_part1_3d values (2, 6, 0);
 insert into day17_part1_3d values (6, 6, 0);
 
 -- 12345678
 -- ..#...#.
-insert into day17_part1_3d values (7, 3, 0);
+insert into day17_part1_3d values (3, 7, 0);
 insert into day17_part1_3d values (7, 7, 0);
 
 -- 12345678
 -- .#....##
-insert into day17_part1_3d values (8, 2, 0);
-insert into day17_part1_3d values (8, 7, 0);
+insert into day17_part1_3d values (2, 8, 0);
+insert into day17_part1_3d values (7, 8, 0);
 insert into day17_part1_3d values (8, 8, 0);
 
 commit;

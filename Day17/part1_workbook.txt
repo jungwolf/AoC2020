@@ -1,15 +1,5 @@
-drop table day17_part1_3d;
-create table day17_part1_3d (x number, y number, z number);
---insert into day17_part1_3d values ( 0, 0);
-insert into day17_part1_3d values (-1, 1, 0);
-insert into day17_part1_3d values ( 0,-1, 0);
-insert into day17_part1_3d values ( 0, 1, 0);
-insert into day17_part1_3d values ( 1, 0, 0);
-insert into day17_part1_3d values ( 1, 1, 0);
-commit;
-select * from day17_part1_3d;
-
 -- create table to hold the offsets that define a neighbor. current rules are the same for each x,y,z dimention
+/* should be there already
 drop table offset;
 create table offset (o number);
 insert into offset values (1);
@@ -17,6 +7,7 @@ insert into offset values (0);
 insert into offset values (-1);
 commit;
 select * from offset ;
+*/
 
 select z,y,listagg(yline) within group (order by x) from (
 with t as ( select min(x) minx from day17_part1_3d)
