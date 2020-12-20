@@ -1,0 +1,62 @@
+drop table day17_part2_4d;
+create table day17_part2_4d (x number, y number, z number, w number);
+
+-- 12345678
+-- ###..#..
+insert into day17_part2_4d values (1, 1, 0, 0);
+insert into day17_part2_4d values (2, 1, 0, 0);
+insert into day17_part2_4d values (3, 1, 0, 0);
+insert into day17_part2_4d values (6, 1, 0, 0);
+
+-- 12345678
+-- .#######
+insert into day17_part2_4d values (2, 2, 0, 0);
+insert into day17_part2_4d values (3, 2, 0, 0);
+insert into day17_part2_4d values (4, 2, 0, 0);
+insert into day17_part2_4d values (5, 2, 0, 0);
+insert into day17_part2_4d values (6, 2, 0, 0);
+insert into day17_part2_4d values (7, 2, 0, 0);
+insert into day17_part2_4d values (8, 2, 0, 0);
+
+-- 12345678
+-- #####...
+insert into day17_part2_4d values (1, 3, 0, 0);
+insert into day17_part2_4d values (2, 3, 0, 0);
+insert into day17_part2_4d values (3, 3, 0, 0);
+insert into day17_part2_4d values (4, 3, 0, 0);
+insert into day17_part2_4d values (5, 3, 0, 0);
+
+-- 12345678
+-- #..##.#.
+insert into day17_part2_4d values (1, 4, 0, 0);
+insert into day17_part2_4d values (4, 4, 0, 0);
+insert into day17_part2_4d values (5, 4, 0, 0);
+insert into day17_part2_4d values (7, 4, 0, 0);
+
+-- 12345678
+-- ###..##.
+insert into day17_part2_4d values (1, 5, 0, 0);
+insert into day17_part2_4d values (2, 5, 0, 0);
+insert into day17_part2_4d values (3, 5, 0, 0);
+insert into day17_part2_4d values (6, 5, 0, 0);
+insert into day17_part2_4d values (7, 5, 0, 0);
+
+-- 12345678
+-- ##...#..
+insert into day17_part2_4d values (1, 6, 0, 0);
+insert into day17_part2_4d values (2, 6, 0, 0);
+insert into day17_part2_4d values (6, 6, 0, 0);
+
+-- 12345678
+-- ..#...#.
+insert into day17_part2_4d values (3, 7, 0, 0);
+insert into day17_part2_4d values (7, 7, 0, 0);
+
+-- 12345678
+-- .#....##
+insert into day17_part2_4d values (2, 8, 0, 0);
+insert into day17_part2_4d values (7, 8, 0, 0);
+insert into day17_part2_4d values (8, 8, 0, 0);
+
+commit;
+select * from day17_part2_4d;

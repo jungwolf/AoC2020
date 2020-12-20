@@ -1,0 +1,40 @@
+---- start from here for next step
+-- create table to hold potential cubes next step
+-- x,y,z, n - number of neighbors, a - active (T) or not (F)
+drop table pot_part2_4d;
+create table pot_part2_4d (x number, y number, z number, w number, n number, active varchar2(1));
+-- for each cube, create an entry for itself with 0 neighbors and active
+insert into pot_part2_4d (x,y,z,w,n,active)
+select x,y,z,w,0,'T' from day17_part2_4d;
+
+merge into pot_part2_4d p
+ using (
+   select c.x+inx.o x, c.y+iny.o y, c.z+inz.o z, c.w+inw.o w, count(*) n
+   from day17_part2_4d c, offset inx, offset iny, offset inz, offset inw -- consider all neighbors
+   where not (inx.o=0 and iny.o=0 and inz.o=0 and inw.o=0)        -- except itself
+   group by c.x+inx.o, c.y+iny.o, c.z+inz.o, c.w+inw.o -- this counts up the neighbors!
+ ) u
+ on (p.x=u.x and p.y=u.y and p.z=u.z and p.w=u.w)               -- does the point already exist?
+ when     matched then update set p.n=u.n         -- if yes update the neighbor count
+ when not matched then insert (x,y,z,w,n,active)      -- if not the create the point
+     values (u.x,u.y,u.z,u.w,u.n,'F');
+commit;
+
+drop table day17_part2_4d;
+create table day17_part2_4d (x number, y number, z number, w number);
+insert into day17_part2_4d
+select x,y,z,w from (
+  select x, y, z, w, sum(n) n, max(active) active -- trick, F is less than T, should make it explicit... anyway, shows if cube was active last time
+  from pot_part2_4d
+  group by x,y,z,w
+)
+where n=3 or (active='T' and n=2)
+/
+
+select w,z,y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_part2_4d)
+select w,z,x,y,lpad('*',nvl(x-lag(x,1) over (partition by w,z,y order by x),x-minx+1),'.') yline
+from day17_part2_4d, t) group by w,z,y order by w,z,y;
+
+-- after 6 cycles
+select count(*) from day17_part2_4d;
