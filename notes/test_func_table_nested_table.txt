@@ -30,3 +30,144 @@ begin
 end;
 /
 select * from table (a_varchar2table('bcd'));
+
+
+select 'boo:jam' from dual;
+--boo:jam
+select instr('boo:jam',':') from dual;
+--4
+select substr('boo:jam',1,4) from dual;
+--boo:
+select substr('boo:jam',1,4-1) from dual;
+--boo
+select substr('boo:jam',4) from dual;
+--:jam
+select substr('boo:jam',4+1) from dual;
+--jam
+select instr('jam',':') from dual;
+--0
+
+
+
+create or replace function string2rows (p_string varchar2, p_delimiter varchar2) return varchar2_tbl as
+  l_vtab varchar2_tbl := varchar2_tbl();
+  i number;
+begin
+  l_vtab.extend;
+  i:= instr(p_string,p_delimiter);
+  if i = 0 then
+    l_vtab(1):=p_string;
+  else
+    l_vtab(1):=substr(p_string,1,i-1);
+    l_vtab := l_vtab multiset union all string2rows(substr(p_string,i+1),p_delimiter);
+  end if;
+  return l_vtab;
+end;
+/
+select * from table (string2rows('boo:jam','%'));
+-- boo:jam
+select * from table (string2rows('boo:jam',':'));
+-- boo
+-- jam
+select * from table (string2rows('boo:jam',''));
+select * from table (string2rows('boo:jam',null));
+select * from table (string2rows('',':'));
+select * from table (string2rows(null,':'));
+select * from table (string2rows(null,null));
+-- error
+
+
+
+
+select instr('boo:jam','') from dual;
+select instr('boo:jam',null) from dual;
+--(null)
+select instr(null,':') from dual;
+--(null)
+select instr(null,null) from dual;
+--(null)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- test
+select * from table (string2rows(null,null));
+select * from table (string2rows('a',null));
+select * from table (string2rows('ab',null));
+select count(*) from table (string2rows('a',null));
+select count(*) from table (string2rows('ab',null));
+
+select * from table (string2rows('boo:jam','%'));
+select * from table (string2rows('boo:jam',':'));
+select * from table (string2rows('boo:jam:',':'));
+select * from table (string2rows('boo::jam:',':'));
+
+
+-- this works, splitting them up into two 
+-- warning, is this going to be a problem with row order? Do I need to force row_number or rownum or some such?
+create or replace function string2rows2 (p_string varchar2) return varchar2_tbl as
+  l_vtab varchar2_tbl := varchar2_tbl();
+  i number;
+begin
+
+--dbms_output.put_line('p_string='||nvl(p_string,'nan')||', p_del='||nvl(p_delimiter,'nan'));
+
+  if p_string is null then
+    return null;
+  end if;
+
+  l_vtab:=string2rows2(substr(p_string,2));
+  if l_vtab is null then
+    return varchar2_tbl(substr(p_string,1,1));
+  else
+    return varchar2_tbl(substr(p_string,1,1))
+    multiset union all
+    string2rows2(substr(p_string,2));
+  end if;
+end;
+/
+
+create or replace function string2rows (p_string varchar2, p_delimiter varchar2 default null) return varchar2_tbl as
+  l_vtab varchar2_tbl := varchar2_tbl();
+  i number;
+begin
+
+dbms_output.put_line('p_string='||nvl(p_string,'nan')||', p_del='||nvl(p_delimiter,'nan'));
+
+  if p_string is null then
+    return null;
+  end if;
+
+  if p_delimiter is null then
+    return string2rows2(p_string);
+  end if;
+
+  i:= instr(p_string,p_delimiter);
+
+  if i = 0 then
+    return varchar2_tbl(p_string);
+  else
+    return varchar2_tbl(substr(p_string,1,i-1)) 
+      multiset union all
+      nvl(string2rows(substr(p_string,i+1),p_delimiter),varchar2_tbl(null));
+  end if;
+end;
+/
