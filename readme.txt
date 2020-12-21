@@ -81,6 +81,7 @@ Too big to brute force. Basically, the number of paths from a node is the sum of
 Game of life with specified dead spots. Basically, for each row, send current, lag, and lead rows to a function to compute the next row state.
 -part 2
 *** not completed***
+Note: Should be workable going to (x,y), like Day 17, instead of row-by-row.
 
 -Day 12
 *** not completed***
