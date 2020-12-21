@@ -25,16 +25,17 @@ The regex family of functions are powerful. Is it cheating?
 
 -Day 3
 -part 1
-Easy! Yet, six days later and I'm not sure how it works. Maybe I should comment these things.
+Easy! Yet, review six days later and I'm not sure how it works. Maybe I should comment these things.
 -part 2
 Take part 1 and run it with four other parameters. One parameter has you skipping every other row. A simple change. My solution is complex and horrible but at least it works.
-Also, Oracle has an aggregate function for addition, sum(), but not multiplication. That was an interesting problem.
+Also, Oracle has an aggregate function for addition, sum(), but not multiplication. That was an interesting problem. Used logs/exp instead.
 
 -Day 4
 -part 1
 The input file has "passports" where the passport span multiple lines and they are separated by an empty line. I couldn't figure out a way in sql to join them together. I spent far too long researching it. The pl/sql procedure was trivial.
 -part 2
 I'm not interested in this puzzle. I may come back to it later.
+*** not completed***
 
 -Day 5
 -part 1
@@ -47,9 +48,11 @@ Used lag() to find a row that doesn't exist.
 -part 1
 Uses "connect by" and recursive subqueries. Did a lot of research but became distracted by Day 8! The research came in very handy.
 I expect I'll come back to this one.
+*** not completed***
 
 -Day 7
 Distracted by Day 8.
+*** not completed***
 
 -Day 8
 -part 1
@@ -67,5 +70,54 @@ One way I'm getting around the issue is by brute forcing the solution using Cart
 -part 2
 Similar to the first but with a little math trick too. Fun.
 
+-Day 10
+-part 1
+Basically a recursive search through all states to find the solution.
+-part 2
+Too big to brute force. Basically, the number of paths from a node is the sum of all the previous nodes it can reach. Work through the nodes in order.
 
+-Day 11
+-part 1
+Game of life with specified dead spots. Basically, for each row, send current, lag, and lead rows to a function to compute the next row state.
+-part 2
+*** not completed***
+
+-Day 12
+*** not completed***
+
+-Day 13
+-part 1
+Given a time, find the closest in time bus that stops. Basically use a simple select with trunc to exclude the previous stops and ceil to find the next closest one.
+-part 2
+Ignore the story, find the first specific configuration of a series of cyclic sequences.
+*** not completed***
+
+-Day 14
+*** not completed***
+
+-Day 15
+-part 1
+Yet again brute force to the rescue. Play a game that depends on the history of a number. In this case, keep track of all 2020 steps and derive the answer.
+-part 2
+Obviously brute force doesn't work for 30000000th number. Only last 2 values of a number matter, keep track of them only to reduce search time.
+There is a small offset and it took me a very long time to figure out a solution to it.
+
+-Day 16
+*** not completed***
+
+-Day 17
+-part 1
+Game of life in 3d. Solution for Day11 wasn't going to scale well to multiple dimentions. Split the rows into individual points and counted neighbors from there.
+-part 2
+4d. Just change (x,y,z) to (x,y,z,w).
+However, I have the pattern to work in n dimentions but not an automated program to do so. Probably have to generate the tables and sql dynamically to do that.
+
+-Day 18
+*** not completed***
+
+-Day 19
+*** not completed***
+
+-Day 20
+*** not completed***
 
