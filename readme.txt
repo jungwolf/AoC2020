@@ -13,6 +13,7 @@ The rest of the puzzles have been a lot more work. I don't think sql is Turing c
 Magic still happens sometimes. Do the heavy lifting and then get to a where clause, "hey Oracle, what IS the answer?" "where b.sum_to_here - a.sum_to_here = 25918798". 
 Poof. Done.
 
+Note: Sql can run a turing machine. So no excuses.
 
 Hightlights by day:
 
