@@ -107,6 +107,7 @@ select instr(null,null) from dual;
 
 
 
+create or replace type varchar2_tbl as table of varchar2(4000);
 
 -- test
 select * from table (string2rows(null,null));
@@ -171,3 +172,28 @@ dbms_output.put_line('p_string='||nvl(p_string,'nan')||', p_del='||nvl(p_delimit
   end if;
 end;
 /
+
+-- example
+select d.*, e.*
+from day17_data d, string2rows(d.xline) e
+where d.lineno in (1,3);
+/*
+1	###..#..	#
+1	###..#..	#
+1	###..#..	#
+1	###..#..	.
+1	###..#..	.
+1	###..#..	#
+1	###..#..	.
+1	###..#..	.
+3	#####...	#
+3	#####...	#
+3	#####...	#
+3	#####...	#
+3	#####...	#
+3	#####...	.
+3	#####...	.
+3	#####...	.
+*/
+-- notice they come out in order; can I rely on it?
+-- do I need to make a specific string2orderedrows function?
