@@ -1,0 +1,71 @@
+/*
+insert into day22_data values (day22_line_sq.nextval, 'Player 1:');
+insert into day22_data values (day22_line_sq.nextval, '9');
+insert into day22_data values (day22_line_sq.nextval, '2');
+insert into day22_data values (day22_line_sq.nextval, '6');
+insert into day22_data values (day22_line_sq.nextval, '3');
+insert into day22_data values (day22_line_sq.nextval, '1');
+insert into day22_data values (day22_line_sq.nextval, '');
+insert into day22_data values (day22_line_sq.nextval, 'Player 2:');
+insert into day22_data values (day22_line_sq.nextval, '5');
+insert into day22_data values (day22_line_sq.nextval, '8');
+insert into day22_data values (day22_line_sq.nextval, '4');
+insert into day22_data values (day22_line_sq.nextval, '7');
+insert into day22_data values (day22_line_sq.nextval, '10');
+*/
+select '9 2 6 3 1' player1, '5 8 4 7 10' player2 from dual;
+select instr(player1,' ') from (
+select '9 2 6 3 1' player1, '5 8 4 7 10' player2 from dual;
+);
+
+select substr(player1,1,instr(player1,' ')-1) from (
+select '9 2 6 3 1' player1, '5 8 4 7 10' player2 from dual
+);
+
+-- no, other direction
+create table day22_exp1 (card number, owner number, move number);
+insert into day22_exp1 values (9,1,1);
+insert into day22_exp1 values (2,1,2);
+insert into day22_exp1 values (6,1,3);
+insert into day22_exp1 values (3,1,4);
+insert into day22_exp1 values (1,1,5);
+insert into day22_exp1 values (5,2,1);
+insert into day22_exp1 values (8,2,2);
+insert into day22_exp1 values (4,2,3);
+insert into day22_exp1 values (7,2,4);
+insert into day22_exp1 values (10,2,5);
+commit;
+
+select *
+from day22_exp1 p1, day22_exp1 p2
+where p1.owner = 1
+  and p2.owner = 2
+  and p1.move = p2.move
+order by p1.move
+;
+select *
+from day22_exp1 p1, day22_exp1 p2
+where p1.owner = 1
+  and p2.owner = 2
+  and p1.move = p2.move
+  and p1.move = (select min(move) from day22_exp1)
+;
+
+select p1.card p1card, p1.owner player1, p2.card p2card, p2.owner player2
+from day22_exp1 p1, day22_exp1 p2
+where p1.owner = 1
+  and p2.owner = 2
+  and p1.move = p2.move
+  and p1.move = (select min(move) from day22_exp1)
+;
+
+select p1.card p1card, p1.owner player1, p2.card p2card, p2.owner player2, p1.move move
+  , case when p1.card > p2.card then p1.owner else p2.owner end winner
+  , case when p1.card > p2.card then p1.card else p2.card end winning_card
+  , case when p1.card > p2.card then p1.card else p2.card end losing_card
+from day22_exp1 p1, day22_exp1 p2
+where p1.owner = 1
+  and p2.owner = 2
+  and p1.move = p2.move
+  and p1.move = (select min(move) from day22_exp1)
+;

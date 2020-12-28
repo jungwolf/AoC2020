@@ -1,0 +1,22 @@
+drop table day22_data;
+drop sequence day22_line_sq;
+create table day22_data (lineno number, xline varchar2(4000));
+create sequence day22_line_sq;
+
+--- use the following to run a macro on the input.txt 
+insert into day22_data values (day22_line_sq.nextval, 'Player 1:');
+insert into day22_data values (day22_line_sq.nextval, '9');
+insert into day22_data values (day22_line_sq.nextval, '2');
+insert into day22_data values (day22_line_sq.nextval, '6');
+insert into day22_data values (day22_line_sq.nextval, '3');
+insert into day22_data values (day22_line_sq.nextval, '1');
+insert into day22_data values (day22_line_sq.nextval, '');
+insert into day22_data values (day22_line_sq.nextval, 'Player 2:');
+insert into day22_data values (day22_line_sq.nextval, '5');
+insert into day22_data values (day22_line_sq.nextval, '8');
+insert into day22_data values (day22_line_sq.nextval, '4');
+insert into day22_data values (day22_line_sq.nextval, '7');
+insert into day22_data values (day22_line_sq.nextval, '10');
+
+commit;
+
