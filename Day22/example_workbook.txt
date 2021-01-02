@@ -69,3 +69,11 @@ where p1.owner = 1
   and p1.move = p2.move
   and p1.move = (select min(move) from day22_exp1)
 ;
+
+with t (card, owner, move, current_move) as (
+select d.card, d.owner, d.move, 0 current_move from day22_exp1 d
+union all
+select t.card, t.owner, t.move, t.current_move+1 from t
+where t.current_move < 10
+)
+select * from t;
