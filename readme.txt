@@ -1,5 +1,7 @@
 # AoC2020
 https://adventofcode.com/
+# leaderboard
+https://adventofcode.com/2020/leaderboard/private/view/38187
 
 My approach is to use SQL as much as possible. I'll use views sometimes to make things easier to read.
 I will use PL/SQL if I can't find a pure sql solution or start to lose my mind.
