@@ -1,0 +1,120 @@
+-- can this be done without a temp table? use blinker as example
+
+-- setup
+drop table offset;
+create table offset (o number);
+insert into offset values (1);
+insert into offset values (0);
+insert into offset values (-1);
+commit;
+select * from offset ;
+
+
+drop table day17_2d;
+create table day17_2d (x number, y number);
+insert into day17_2d values (-1, 0);
+insert into day17_2d values (0, 0);
+insert into day17_2d values (1, 0);
+commit;
+select * from day17_2d;
+
+-- display board
+select y,listagg(yline) within group (order by x) from (
+with t as ( select min(x) minx from day17_2d)
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t) group by y order by y;
+
+-- how does it work?
+-- using . as empty and * as full
+-- so maybe something like
+-- y=1, x=1,3,4
+-- y=2, x=2
+-- want 1,'*.**'
+--      2,'.*'
+-- print the right border is left for another time
+/*
+select y,listagg(yline) within group (order by x) from (
+...
+) group by y order by y;
+-- for every y (row), display "something" from the inner view in order of x
+-- remember, x can have gaps, so in this case yline(1)||yline(3)||yline(4) 
+
+-- BUG!!! we group the X values by y and order by y
+--  but what if there are gaps in y? (1,1), (2,1), (1,3)
+--  current query wouldn't display a line for the missing 2
+-- something to think about
+
+with t as ( select min(x) minx from day17_2d)
+-- we don't have a set board size
+-- use min(x) for the left side of our display window
+-- select min(SOMETHING) from TABLE always returns 1 row
+-- because of this, joins to this table does not change the number of rows from the other table
+-- so we add t to the from clause and use t.minx for the min(x) value
+
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t
+-- there is a lot to unpack here
+-- we want every x to display '*'
+-- the trouble is, how do we display '.' where there isn't something in the table?
+-- the key is look at the difference between the x values.
+-- x prints its own '*', plus any previous '.' needed to fill in the gap
+-- start with x=1, '*'
+--  now x=2, it is 2-1=1 spots over, so it needs to print '*', total '**'
+--  now x=4, it is 4-2=2 spots over, so it needs to print '.*', total '**.*'
+--  we did it! x2-x1=z is the total size of the needed string, which is z-1 '.' and a final '*'
+-- if we're here at x, how do we find out the value of the previous x?
+-- analytic function!
+lag(x,1) over (partition by y order by x)
+-- partition by y -> I'm at (x,y), I only want to look at values in my same row, y
+-- order by x -> order the results by x
+-- lag(x,1) -> return x of the previous result (since they are in order of x, the previous x)
+x-lag(x,1) over (partition by y order by x)
+-- we know this x, and the previous x, so the difference is the size of the string for '.'...'*'; 1=>'*', 2=>'.*', 3=>'..*', etc.
+-- but what if this is the first x? Null! in general, analytic functions work "over (defined window)" and anything outside that window is considered null
+--  x-null => null
+nvl(
+  x-lag(x,1) over (partition by y order by x)  -- x2-x1
+  ,x-minx+1 -- or x-(minx-1), because we want the number of spaces from the edge of the board
+  ) 
+-- the size of the string we need at this x!
+lpad('*',sizeofstring,'.')
+-- lpad(), left pad, returns a string of length sizeofstring. If the first string '*' is less than sizeofstring, it will append as many '.' as needed to reach the size
+-- lpad('*',1,'.') => '*', lpad('*',2,'.') => '.*', 3=>'..*', etc
+-- so we're done
+select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+from day17_2d, t
+-- results in a bunch of this: x,y,'[...]*'
+select y,listagg(yline) within group (order by x) from (
+...
+) group by y order by y;
+-- and this gives a bunch of row y with '*..*****.' based on the x values
+
+*/
+
+
+select y,listagg(yline) within group (order by x) from (
+  with t as ( select min(x) minx from day17_2d)
+  select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+  from day17_2d, t
+) group by y order by y;
+
+select c.x+inx.o x, c.y+iny.o y, count(*)
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)
+group by c.x+inx.o, c.y+iny.o
+order by y,x
+/
+
+with t as ( select min(x) minx from day17_2d)
+select c.x+inx.o x, c.y+iny.o y, count(*)
+   from day17_2d c, offset inx, offset iny -- consider all neighbors
+   where not (inx.o=0 and iny.o=0)
+group by c.x+inx.o, c.y+iny.o
+order by y,x
+/
+
+select y,listagg(yline) within group (order by x) from (
+  with t as ( select min(x) minx from day17_2d)
+  select x,y,lpad('*',nvl(x-lag(x,1) over (partition by y order by x),x-minx+1),'.') yline
+  from day17_2d, t
+) group by y order by y;
