@@ -77,3 +77,35 @@ select t.card, t.owner, t.move, t.current_move+1 from t
 where t.current_move < 10
 )
 select * from t;
+
+/*
+note from 2023
+I don't know where this left off
+looks like I abandoned the string as stack methoc
+
+Here is a starting point:
+
+with a (player1, player2) as (
+  select cast('9 2 6 3 1 ' as varchar2(100)) player1, cast('5 8 4 7 10 ' as varchar2(100)) player2 from dual
+
+  union all
+
+  select
+    case when
+      to_number(substr(player1,1,instr(player1,' '))) > to_number(substr(player2,1,instr(player2,' ')))
+      then substr(player1,instr(player1,' ')+1)||substr(player1,1,instr(player1,' '))||substr(player2,1,instr(player2,' '))
+      else substr(player1,instr(player1,' ')+1)
+    end
+    ,case when
+      to_number(substr(player1,1,instr(player1,' '))) > to_number(substr(player2,1,instr(player2,' ')))
+      then substr(player2,instr(player2,' ')+1)
+      else substr(player2,instr(player2,' ')+1)||substr(player2,1,instr(player2,' '))||substr(player1,1,instr(player1,' '))
+     end
+  from a
+  where player1 is not null and player2 is not null
+)
+select * from a where rownum < 100;
+
+cast is important otherwise the recursive view has a problem with the string length
+
+*/
